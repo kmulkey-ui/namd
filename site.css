@@ -1,0 +1,247 @@
+/* Site-specific styles for the NAMD conference UI kit.
+   Layer on top of the design system's colors_and_type.css. */
+@import url('../../colors_and_type.css');
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #fff; color: var(--fg-1); }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  background: var(--namd-dark-blue);
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.topbar-inner {
+  max-width: 1180px; margin: 0 auto; padding: 8px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; flex-wrap: nowrap;
+}
+.topbar-inner > div { white-space: nowrap; }
+.topbar a { color: #fff; text-decoration: none; opacity: 0.9; }
+.topbar a:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+.topbar-sep { color: var(--namd-red); margin: 0 10px; }
+
+/* ---------- Site header ---------- */
+.site-header {
+  border-bottom: 1px solid var(--border-1);
+  background: #fff;
+}
+.site-header-inner {
+  max-width: 1180px; margin: 0 auto; padding: 18px 24px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.site-logo img { height: 56px; display: block; }
+.site-nav { display: flex; gap: 28px; align-items: center; }
+.site-nav a {
+  font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--namd-dark-blue); text-decoration: none;
+}
+.site-nav a:hover { color: var(--namd-red); }
+.site-nav .active { border-bottom: 2px solid var(--namd-red); padding-bottom: 4px; }
+
+/* ---------- Buttons (reuse for kit) ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 44px; padding: 0 22px;
+  font-family: var(--font-text); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  border-radius: 4px; cursor: pointer; border: 1px solid transparent;
+  text-decoration: none; transition: all 140ms var(--ease-standard);
+}
+.btn--primary { background: var(--namd-dark-blue); color: #fff; }
+.btn--primary:hover { background: #003A6B; }
+.btn--secondary { background: transparent; color: var(--namd-dark-blue); border-color: var(--namd-dark-blue); }
+.btn--secondary:hover { background: var(--dark-blue-tint); }
+.btn--on-dark { background: #fff; color: var(--namd-dark-blue); }
+.btn--on-dark:hover { background: #e6ecf2; }
+.btn--red { background: var(--namd-red); color: #fff; }
+.btn--red:hover { background: #960630; }
+
+/* ---------- Hero ----------
+   The provided hero photography is PRE-COMPOSITED with the NAMD 2026 lockup
+   baked in. So the hero is: full-bleed hero image on top, solid dark-blue
+   band below holding the date/location lockup and CTAs. No text overlay on
+   the image itself. */
+.hero { background: var(--namd-dark-blue); color: #fff; }
+.hero-photo {
+  width: 100%; max-height: 560px;
+  background-size: cover; background-position: center;
+  aspect-ratio: 2 / 1;
+  display: block;
+}
+.hero-band {
+  background: var(--namd-dark-blue);
+  padding: 40px 24px 56px;
+  text-align: center;
+}
+.hero-eyebrow {
+  font-family: var(--font-display); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.24em;
+  font-size: 13px; color: #fff; opacity: 0.95;
+  display: inline-flex; align-items: center; gap: 14px;
+}
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content: ''; display: inline-block; width: 48px; height: 1px;
+  background: var(--namd-red);
+}
+.hero-meta {
+  display: inline-block; padding: 14px 28px; margin-top: 18px;
+  border-top: 1px solid var(--namd-red); border-bottom: 1px solid var(--namd-red);
+  font-family: var(--font-display); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.16em;
+  font-size: 15px; color: #fff;
+}
+.hero-meta .star { color: var(--namd-red); margin: 0 16px; }
+.hero-cta { margin-top: 28px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ---------- Generic section ---------- */
+.section { padding: 72px 24px; }
+.section--alt { background: var(--bg-2); }
+.section--brand { background: var(--namd-dark-blue); color: #fff; }
+.section-inner { max-width: 1180px; margin: 0 auto; }
+.section-head { text-align: center; margin-bottom: 40px; }
+.section-eyebrow {
+  font-family: var(--font-display); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.2em; font-size: 12px;
+  color: var(--namd-red); margin-bottom: 12px;
+}
+.section-title {
+  font-family: var(--font-display); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-size: 42px; color: var(--namd-dark-blue); margin: 0 0 14px;
+  line-height: 1.1;
+}
+.section--brand .section-title { color: #fff; }
+.section-lead {
+  font-weight: 300; font-size: 20px; line-height: 1.45;
+  color: var(--fg-2); max-width: 680px; margin: 0 auto;
+}
+.section--brand .section-lead { color: rgba(255,255,255,0.9); }
+
+/* ---------- Stat row ---------- */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+.stat-num {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 56px; line-height: 1; color: var(--namd-dark-blue);
+}
+.section--brand .stat-num { color: #fff; }
+.stat-label {
+  font-family: var(--font-display); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  font-size: 12px; color: var(--fg-2); margin-top: 10px;
+}
+.section--brand .stat-label { color: rgba(255,255,255,0.85); }
+
+/* ---------- Agenda ---------- */
+.agenda-tabs {
+  display: flex; gap: 0; justify-content: center;
+  border-bottom: 1px solid var(--border-1); margin-bottom: 36px;
+}
+.agenda-tab {
+  background: transparent; border: 0; padding: 16px 32px;
+  font-family: var(--font-display); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em; font-size: 13px;
+  color: var(--fg-3); cursor: pointer; position: relative; top: 1px;
+  border-bottom: 2px solid transparent;
+}
+.agenda-tab:hover { color: var(--namd-dark-blue); }
+.agenda-tab.active { color: var(--namd-dark-blue); border-bottom-color: var(--namd-red); }
+
+.session {
+  display: grid; grid-template-columns: 180px 1fr auto; gap: 24px;
+  padding: 22px 0; border-bottom: 1px solid var(--border-1); align-items: baseline;
+}
+.session-time {
+  font-family: var(--font-mono); font-size: 13px; color: var(--fg-2);
+  letter-spacing: 0.04em;
+}
+.session-title {
+  font-family: var(--font-display); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  font-size: 20px; color: var(--namd-dark-blue); margin: 0 0 4px;
+}
+.session-meta { font-size: 13px; color: var(--fg-3); }
+.session-tag {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+}
+.session-tag--plenary { background: #F7E6EB; color: var(--namd-red); }
+.session-tag--breakout { background: #E6ECF2; color: var(--namd-dark-blue); }
+.session-tag--members { background: var(--ink-100); color: var(--ink-700); }
+
+/* ---------- Speaker grid ---------- */
+.speakers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.speaker {
+  text-align: left;
+}
+.speaker-photo {
+  width: 100%; aspect-ratio: 1/1; background: var(--ink-200);
+  border-radius: 4px; margin-bottom: 12px; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #E6ECF2 0%, #EEF2F8 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--namd-light-blue); font-family: var(--font-display); font-size: 32px; font-weight: 700;
+}
+.speaker-name {
+  font-family: var(--font-text); font-weight: 700; font-size: 15px;
+  color: var(--fg-1); margin: 0 0 2px;
+}
+.speaker-title { font-size: 12px; color: var(--fg-3); line-height: 1.4; }
+
+/* ---------- Footer ---------- */
+.site-footer { background: var(--namd-dark-blue); color: #fff; padding: 48px 24px 24px; }
+.footer-inner { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; }
+.footer-logo img { height: 72px; display: block; margin-bottom: 14px; filter: brightness(0) invert(1); opacity: 0.95; }
+.footer-col h4 {
+  font-family: var(--font-display); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  font-size: 12px; color: #fff; margin: 0 0 14px; opacity: 0.95;
+}
+.footer-col a { display: block; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; padding: 4px 0; }
+.footer-col a:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.footer-bottom {
+  max-width: 1180px; margin: 32px auto 0; padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  display: flex; justify-content: space-between; font-size: 11px;
+  color: rgba(255,255,255,0.7); letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* ---------- Register form ---------- */
+.form-card {
+  max-width: 640px; margin: 0 auto;
+  background: #fff; border: 1px solid var(--border-1); border-radius: 4px;
+  padding: 40px 40px; box-shadow: 0 4px 10px rgba(15,23,42,0.04);
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; margin-bottom: 16px; }
+.form-row--single { grid-template-columns: 1fr; }
+.form-label {
+  display: block; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--fg-2); margin-bottom: 6px;
+}
+.form-input, .form-select {
+  width: 100%; height: 42px; padding: 0 12px;
+  font: inherit; font-size: 14px; color: var(--fg-1); background: #fff;
+  border: 1px solid var(--border-1); border-radius: 4px; box-sizing: border-box;
+}
+.form-input:focus, .form-select:focus {
+  outline: none; border-color: var(--namd-dark-blue);
+  box-shadow: 0 0 0 3px rgba(0,70,127,0.15);
+}
+.form-tiers { display: grid; gap: 10px; margin-bottom: 20px; }
+.form-tier {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px; border: 1px solid var(--border-1); border-radius: 4px; cursor: pointer;
+  transition: border-color 120ms var(--ease-standard);
+}
+.form-tier:hover { border-color: var(--namd-light-blue); }
+.form-tier--active { border-color: var(--namd-dark-blue); background: var(--dark-blue-tint); }
+.form-tier-name { font-weight: 700; font-size: 14px; color: var(--fg-1); }
+.form-tier-desc { font-size: 12px; color: var(--fg-3); }
+.form-tier-price { font-family: var(--font-display); font-weight: 700; font-size: 22px; color: var(--namd-dark-blue); }
+
+/* ---------- Utility ---------- */
+.star { color: var(--namd-red); }
+.rule-red { height: 1px; background: var(--namd-red); border: 0; margin: 16px 0; }
