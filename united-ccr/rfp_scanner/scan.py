@@ -64,9 +64,27 @@ def render_dashboard(payload, template_path, out_path):
         f.write(html)
 
 
+def apply_profile(cfg, profile):
+    """Overlay what Cody entered in the company file (exported as portfolio/profile.json)."""
+    o = (profile or {}).get("scanner") or {}
+    company = cfg["company"]
+    for key in ("certifications_held", "licenses_held", "sam_registered"):
+        if key in o:
+            company[key] = o[key]
+    if o.get("service_states"):
+        cfg["service_area"]["states"] = o["service_states"]
+    if o.get("max_miles"):
+        company["max_miles"] = o["max_miles"]
+    return cfg
+
+
 def run(config_path, now=None, extra=None, log=print):
     now = now or datetime.now(timezone.utc).replace(tzinfo=None)
     cfg = load_json(config_path, None)
+    profile = load_json(os.path.join(ROOT, "portfolio", "profile.json"), None)
+    if profile:
+        apply_profile(cfg, profile)
+        log("Company file applied (exported %s)" % profile.get("exported_at", "?"))
     store_path = os.path.join(ROOT, "data", "opportunities.json")
     previous = load_json(store_path, None)
     first_run = previous is None

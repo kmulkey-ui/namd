@@ -2,6 +2,7 @@
 
 A daily scanner that finds public bid opportunities United CCR can respond to, checks eligibility, and ranks them with jobs near the Cypress, TX headquarters first. Nothing inside the service area is dropped for distance; distance only changes rank.
 
+- **RFP Radar page** (published on Claude): four tabs. *Opportunities* (scan results), *Company file* (the questionnaire for Cody; answers save to the page's shared store), *Draft a response* (analyzes an RFP against the company file, writes a draft, then scores it as an evaluator would), and *Portfolio* (rebuilt from the company file).
 - `PORTFOLIO.md` — company research, capability statement, RFP metrics scorecard, eligibility actions.
 - `portfolio/projects.csv` — past-performance log to fill from company records.
 - `rfp_scanner/` — the scanner (Python 3.10+, standard library only).
@@ -21,7 +22,7 @@ A daily scanner that finds public bid opportunities United CCR can respond to, c
 - Fit: NAICS match, facility service codes, scope keywords, sectors United CCR already serves; off-scope terms subtract.
 - Proximity: 100 at HQ falling to 0 at 700 miles. Tiers: home turf ≤60 mi, Houston region ≤150, statewide reach ≤450, long haul beyond.
 
-All of this is set in `rfp_scanner/config.json`. When United CCR gets a certification or license, add it there (`certifications_held`, `licenses_held`, `sam_registered`) and the affected opportunities become eligible on the next run.
+All of this is set in `rfp_scanner/config.json`. The company file's **Export for scanner** button saves `profile.json`; commit it to `portfolio/profile.json` and each scan applies Cody's certifications, licenses, SAM status, states and travel limit on top of the config. When United CCR gets a certification or license, add it there (`certifications_held`, `licenses_held`, `sam_registered`) and the affected opportunities become eligible on the next run.
 
 ## Sources
 

@@ -178,6 +178,9 @@ def evaluate(opp, cfg, geocoder, now=None):
         flags.append("Federal award requires an active SAM.gov registration (UEI); start it now, it takes weeks")
     if re.search(r"\bbond(s|ing|ed)?\b", text):
         flags.append("Bonding required; confirm bid/performance bond capacity")
+    limit = company.get("max_miles")
+    if limit and miles is not None and miles > limit:
+        flags.append("Farther than United CCR's stated travel limit (%d mi)" % limit)
     if re.search(r"mandatory (pre-?bid|pre-?proposal|site visit|walk)", text):
         flags.append("Mandatory pre-bid meeting or site visit")
 

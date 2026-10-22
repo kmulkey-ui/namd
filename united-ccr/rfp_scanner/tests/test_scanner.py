@@ -67,6 +67,21 @@ class ScoringTests(unittest.TestCase):
         self.assertLess(o["fit"], CFG["scoring"]["min_fit_to_list"])
 
 
+class ProfileTests(unittest.TestCase):
+    def test_company_file_unlocks_set_aside_and_license(self):
+        from rfp_scanner.scan import apply_profile
+        cfg = json.loads(json.dumps(CFG))
+        apply_profile(cfg, {"scanner": {"certifications_held": ["SB", "TX-HUB", "WOSB"], "sam_registered": True,
+                                        "licenses_held": ["TDLR-MOLD-REMEDIATION"], "max_miles": 300}})
+        rec = sources.sam_record_to_opp({"noticeId": "x", "title": "Mold Remediation, Clinic", "naicsCode": "562910",
+                                         "type": "Solicitation", "typeOfSetAside": "WOSB", "responseDeadLine": "2026-11-20",
+                                         "placeOfPerformance": {"city": {"name": "El Paso"}, "state": {"code": "TX"}}})
+        o = scoring.evaluate(rec, cfg, GEO, NOW)
+        self.assertEqual(o["status"], "eligible")
+        self.assertFalse(any(f.startswith(("Texas mold", "Federal award")) for f in o["flags"]))
+        self.assertTrue(any("travel limit" in f for f in o["flags"]))
+
+
 class SourceTests(unittest.TestCase):
     def test_parse_dates(self):
         self.assertEqual(sources.parse_date("12/08/2026"), "2026-12-08")

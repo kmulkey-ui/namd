@@ -4,11 +4,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* Layout: a bid desk. Distance rings from the Cypress HQ beside a ranked bid list; portfolio as a second sheet. */
+/* Layout: a bid desk. Opportunities ranked around the Cypress HQ, the company file Cody fills in, a drafting bench, and the portfolio it all produces. */
 :root {
   --bg: #F2F5F4; --surface: #FFFFFF; --ink: #15201E; --muted: #5A6764; --line: #D3DCD9;
   --accent: #0B6E79; --accent-soft: #DDEFF0; --ok: #2C7A37; --warn: #9C5D0E; --bad: #B3261E;
-  --ok-soft: #E3F1E4; --warn-soft: #F7EBD9; --bad-soft: #F8E2E0;
+  --ok-soft: #E3F1E4; --warn-soft: #F7EBD9; --bad-soft: #F8E2E0; --mark: #FFF1B8; --mark-ink: #5C4600;
   --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
   --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -16,11 +16,11 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0E1413; --surface: #16201F; --ink: #E4ECEA; --muted: #93A29F; --line: #293634;
   --accent: #52B8C3; --accent-soft: #15373A; --ok: #6DC27B; --warn: #E2A452; --bad: #F08A80;
-  --ok-soft: #173020; --warn-soft: #36280F; --bad-soft: #3A1A18; color-scheme: dark } }
+  --ok-soft: #173020; --warn-soft: #36280F; --bad-soft: #3A1A18; --mark: #3D3410; --mark-ink: #F3DD8A; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0E1413; --surface: #16201F; --ink: #E4ECEA; --muted: #93A29F; --line: #293634;
   --accent: #52B8C3; --accent-soft: #15373A; --ok: #6DC27B; --warn: #E2A452; --bad: #F08A80;
-  --ok-soft: #173020; --warn-soft: #36280F; --bad-soft: #3A1A18; color-scheme: dark }
+  --ok-soft: #173020; --warn-soft: #36280F; --bad-soft: #3A1A18; --mark: #3D3410; --mark-ink: #F3DD8A; color-scheme: dark }
 
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5 }
@@ -30,19 +30,20 @@ h1 { font-size: 2.1rem; line-height: 1.05 }
 h2 { font-size: 1.55rem; line-height: 1.1 }
 h3 { font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted) }
 a { color: var(--accent) }
-button, select, input { font: inherit; color: inherit }
+button, select, input, textarea { font: inherit; color: inherit }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums }
+.note { font-size: .82rem; color: var(--muted) }
+.notice { background: var(--warn-soft); color: var(--warn); padding: 10px 14px; border-radius: 3px; font-size: .9rem }
 
 header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; padding-bottom: 14px; border-bottom: 2px solid var(--ink) }
 .brand small { display: block; font-family: var(--mono); font-size: .78rem; color: var(--muted); letter-spacing: .04em; text-transform: uppercase }
-.tabs { display: flex; gap: 4px }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px }
 .tabs button { background: none; border: 1px solid var(--line); padding: 7px 14px; border-radius: 3px; cursor: pointer; font-weight: 600 }
 .tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
 
 .meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .82rem; color: var(--muted); margin-top: 10px }
 .meta b { color: var(--ink); font-weight: 600 }
-
 .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-block: 18px }
 .summary div { background: var(--surface); padding: 12px 14px }
 .summary .n { font-family: var(--display); font-size: 2rem; line-height: 1; font-weight: 700 }
@@ -60,42 +61,96 @@ header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; j
 .controls input[type="search"] { flex: 1 1 220px; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); background: var(--surface); border-radius: 3px }
 .controls select { padding: 8px; border: 1px solid var(--line); background: var(--surface); border-radius: 3px; max-width: 100% }
 .controls label.chk { display: flex; gap: 6px; align-items: center; font-size: .85rem; color: var(--muted) }
-.btn { background: var(--surface); border: 1px solid var(--ink); padding: 7px 12px; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: .85rem }
+.btn { background: var(--surface); border: 1px solid var(--ink); padding: 7px 12px; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: .85rem; text-decoration: none; display: inline-block }
 .btn:hover { background: var(--accent-soft) }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface) }
+.btn.primary:hover { filter: brightness(1.08); background: var(--accent) }
+.btn:disabled { opacity: .45; cursor: not-allowed }
+.btn.danger { border-color: var(--bad); color: var(--bad) }
 
 .list { display: flex; flex-direction: column; gap: 10px }
-.opp { background: var(--surface); border: 1px solid var(--line); display: grid; grid-template-columns: 64px minmax(0, 1fr); }
+.opp { background: var(--surface); border: 1px solid var(--line); display: grid; grid-template-columns: 64px minmax(0, 1fr) }
 .opp.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) }
 .score { display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--line); padding: 10px 4px }
 .score .n { font-family: var(--display); font-size: 1.9rem; font-weight: 700; line-height: 1 }
 .score .l { font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted) }
 .opp .main { padding: 12px 14px; min-width: 0 }
-.opp .head { display: flex; gap: 10px; justify-content: space-between; align-items: start }
 .opp .title { font-weight: 600; font-size: 1rem; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; overflow-wrap: anywhere }
 .opp .title:hover { color: var(--accent) }
 .facts { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .84rem; color: var(--muted); margin-top: 4px }
 .facts b { color: var(--ink); font-weight: 500 }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px }
 .chip { font-size: .72rem; font-weight: 600; letter-spacing: .03em; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); white-space: nowrap }
-.chip.eligible { background: var(--ok-soft); color: var(--ok); border-color: transparent }
-.chip.check { background: var(--warn-soft); color: var(--warn); border-color: transparent }
-.chip.ineligible { background: var(--bad-soft); color: var(--bad); border-color: transparent }
+.chip.eligible, .chip.meets { background: var(--ok-soft); color: var(--ok); border-color: transparent }
+.chip.check, .chip.unknown { background: var(--warn-soft); color: var(--warn); border-color: transparent }
+.chip.ineligible, .chip.gap { background: var(--bad-soft); color: var(--bad); border-color: transparent }
 .chip.tier { color: var(--accent); border-color: var(--accent) }
 .due-soon { color: var(--bad) !important; font-weight: 600 }
 .detail { border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 10px; font-size: .88rem; display: grid; gap: 8px }
 .detail ul { margin: 0; padding-left: 18px }
-.detail .row { display: flex; flex-wrap: wrap; gap: 8px }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
 .empty { background: var(--surface); border: 1px dashed var(--line); padding: 24px; color: var(--muted) }
-.note { font-size: .82rem; color: var(--muted) }
+
+/* Company file (questionnaire) */
+.file-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 22px; align-items: start; margin-top: 18px }
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); background: var(--surface); border: 1px solid var(--line); padding: 14px }
+.readiness { display: grid; gap: 4px; margin-bottom: 12px }
+.readiness .big { font-family: var(--display); font-size: 2.6rem; line-height: 1; font-weight: 700; color: var(--accent) }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px }
+.toc a { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 5px 6px; border-radius: 3px; color: var(--ink); text-decoration: none; font-size: .88rem }
+.toc a:hover { background: var(--accent-soft) }
+.toc .pct { font-family: var(--mono); font-size: .76rem; color: var(--muted) }
+.bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden }
+.bar i { display: block; height: 100%; background: var(--accent) }
+.fsec { background: var(--surface); border: 1px solid var(--line); padding: 18px; display: grid; gap: 14px; scroll-margin-top: 16px }
+.fsec + .fsec { margin-top: 16px }
+.fsec header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 14px; align-items: baseline }
+.fsec .why { font-size: .88rem; color: var(--muted); max-width: 72ch; margin: 0 }
+.saved { font-size: .78rem; font-family: var(--mono); color: var(--muted) }
+.saved.err { color: var(--bad) }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px }
+.field { display: grid; gap: 4px; min-width: 0 }
+.field.wide { grid-column: 1 / -1 }
+.field label { font-weight: 600; font-size: .88rem }
+.field .help { font-size: .78rem; color: var(--muted) }
+.field input, .field select, .field textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--bg) }
+.field textarea { min-height: 84px; resize: vertical }
+.field input:disabled, .field select:disabled, .field textarea:disabled { opacity: .7 }
+.multi { display: flex; flex-wrap: wrap; gap: 6px }
+.multi label { font-weight: 500; font-size: .82rem; display: flex; gap: 5px; align-items: center; border: 1px solid var(--line); padding: 3px 9px; border-radius: 99px; cursor: pointer; background: var(--bg) }
+.multi input { width: auto; margin: 0 }
+.items { display: grid; gap: 8px }
+.item { border: 1px solid var(--line); padding: 10px 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; background: var(--bg) }
+.item b { display: block }
+.editor { border: 1px solid var(--accent); padding: 14px; display: grid; gap: 12px; background: var(--bg) }
+
+/* Drafting bench */
+.bench { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 20px; align-items: start; margin-top: 18px }
+.panel { background: var(--surface); border: 1px solid var(--line); padding: 16px; display: grid; gap: 12px; min-width: 0 }
+.steps-ui { display: grid; gap: 8px }
+.status { font-size: .85rem; color: var(--muted); min-height: 1.3em }
+.status.err { color: var(--bad) }
+.meter { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center }
+.meter .big { font-family: var(--display); font-size: 3rem; font-weight: 700; line-height: 1 }
+.cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px }
+.doc { background: var(--surface); border: 1px solid var(--line); padding: 22px 26px; min-width: 0; overflow-wrap: anywhere }
+.doc h1 { font-size: 1.8rem; margin: 0 0 10px } .doc h2 { font-size: 1.45rem; margin: 22px 0 8px; border-bottom: 1px solid var(--line); padding-bottom: 4px }
+.doc h3 { font-size: 1.05rem; margin: 16px 0 6px; color: var(--ink) } .doc h4 { margin: 12px 0 4px }
+.doc p, .doc ul, .doc ol { margin: 0 0 10px; max-width: 78ch }
+.doc table { margin: 8px 0 14px } .doc .tbl { margin: 8px 0 14px }
+.doc blockquote { margin: 0 0 10px; padding-left: 12px; border-left: 3px solid var(--line); color: var(--muted) }
+mark.need { background: var(--bad-soft); color: var(--bad); padding: 0 3px; border-radius: 2px; font-weight: 600 }
+mark.consider { background: var(--mark); color: var(--mark-ink); padding: 0 3px; border-radius: 2px }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px }
 
 /* Portfolio sheet */
 .sheet { display: grid; gap: 28px; margin-top: 22px }
 .sheet section { display: grid; gap: 12px }
-.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px }
-.card { background: var(--surface); border: 1px solid var(--line); padding: 14px 16px }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px }
+.card { background: var(--surface); border: 1px solid var(--line); padding: 14px 16px; min-width: 0 }
 .card h4 { margin: 0 0 6px; font-family: var(--display); font-size: 1.2rem }
 .card p { margin: 0 }
-.lead { font-size: 1.05rem; max-width: 68ch }
+.lead { font-size: 1.05rem; max-width: 68ch; margin: 0 }
 .tbl { overflow-x: auto; border: 1px solid var(--line); background: var(--surface) }
 table { border-collapse: collapse; width: 100%; font-size: .88rem }
 th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top }
@@ -106,10 +161,12 @@ tr:last-child td { border-bottom: 0 }
 .big { font-family: var(--display); font-size: 2.6rem; font-weight: 700; line-height: 1; color: var(--accent) }
 ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80ch }
 
-@media (max-width: 860px) {
-  .desk { grid-template-columns: 1fr }
-  .radar { position: static }
+@media (max-width: 900px) {
+  .desk, .file-layout, .bench { grid-template-columns: 1fr }
+  .radar, .toc { position: static }
   .summary { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .fields, .cols2 { grid-template-columns: 1fr }
+  .doc { padding: 16px }
 }
 @media (prefers-reduced-motion: no-preference) { .opp { transition: border-color .15s } }
 </style>
@@ -122,6 +179,8 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
     </div>
     <div class="tabs" role="tablist">
       <button role="tab" id="tab-opps" aria-selected="true" aria-controls="view-opps">Opportunities</button>
+      <button role="tab" id="tab-profile" aria-selected="false" aria-controls="view-profile">Company file</button>
+      <button role="tab" id="tab-draft" aria-selected="false" aria-controls="view-draft">Draft a response</button>
       <button role="tab" id="tab-portfolio" aria-selected="false" aria-controls="view-portfolio">Portfolio</button>
     </div>
   </header>
@@ -130,7 +189,6 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
   <main id="view-opps" role="tabpanel" aria-labelledby="tab-opps">
     <div class="meta" id="meta"></div>
     <div class="summary" id="summary"></div>
-
     <div class="desk">
       <aside class="radar">
         <h3>Distance from Cypress HQ</h3>
@@ -142,7 +200,6 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
         </div>
         <p class="cap">Rings at 60, 150, 450 and 700 miles mark the priority tiers. North is up. Opportunities without a location sit outside the rings.</p>
       </aside>
-
       <div>
         <div class="controls">
           <input type="search" id="q" placeholder="Search title, agency, city" aria-label="Search opportunities">
@@ -163,6 +220,87 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
     </div>
   </main>
 
+  <!-- ========================= COMPANY FILE ========================= -->
+  <main id="view-profile" role="tabpanel" aria-labelledby="tab-profile" hidden>
+    <div class="file-layout">
+      <aside class="toc">
+        <div class="readiness">
+          <span class="note">Bid readiness</span>
+          <span class="big" id="readyPct">0%</span>
+          <div class="bar"><i id="readyBar" style="width:0%"></i></div>
+          <span class="note" id="readyNote">Answers fill the portfolio and every draft response.</span>
+        </div>
+        <ol id="toc"></ol>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="exportProfile">Export for scanner</button>
+          <button class="btn" id="exportProjects">Projects CSV</button>
+        </div>
+        <p class="note" id="exportNote"></p>
+      </aside>
+      <div>
+        <div class="notice" id="profileNotice" hidden></div>
+        <section class="fsec" style="margin-bottom:16px">
+          <h2>Company file for Cody</h2>
+          <p class="why">Every answer here becomes source material: it fills the portfolio, sharpens which bids the scanner marks eligible, and is the only knowledge the response drafter is allowed to use. Answers save automatically and are shared with everyone who can open this page. Skip anything you don't know yet; the drafter marks missing facts instead of guessing. Rough numbers are fine where noted.</p>
+        </section>
+        <div id="form"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================= DRAFT ========================= -->
+  <main id="view-draft" role="tabpanel" aria-labelledby="tab-draft" hidden>
+    <div class="notice" id="draftNotice" hidden style="margin-top:18px"></div>
+    <div class="bench">
+      <div class="panel">
+        <h2>Response bench</h2>
+        <div class="field">
+          <label for="dOpp">Opportunity</label>
+          <select id="dOpp"></select>
+        </div>
+        <div class="field" id="dTitleWrap" hidden>
+          <label for="dTitle">Solicitation title</label>
+          <input id="dTitle" placeholder="e.g. Custodial Services RFP 26-014, City of Tomball">
+        </div>
+        <div class="field">
+          <label for="dFile">Solicitation document</label>
+          <input type="file" id="dFile" accept=".pdf,.txt,.md,application/pdf,text/plain">
+          <span class="help">Upload the RFP PDF, or paste its scope, requirements and evaluation criteria below.</span>
+        </div>
+        <div class="field">
+          <label for="dText">Solicitation text</label>
+          <textarea id="dText" rows="8" placeholder="Paste the RFP text here"></textarea>
+          <span class="help" id="dCount">0 characters</span>
+        </div>
+        <div class="steps-ui">
+          <button class="btn primary" id="bAnalyze">1 · Analyze the solicitation</button>
+          <button class="btn primary" id="bDraft">2 · Write the draft response</button>
+          <button class="btn primary" id="bReview">3 · Score it as an evaluator</button>
+          <button class="btn" id="bStop" hidden>Stop</button>
+        </div>
+        <p class="status" id="dStatus" role="status"></p>
+        <p class="note" id="kbNote"></p>
+        <h3>Saved drafts</h3>
+        <div class="items" id="drafts"><p class="note">No saved drafts yet.</p></div>
+      </div>
+      <div style="display:grid;gap:16px;min-width:0">
+        <div id="analysisOut"></div>
+        <div id="draftWrap" hidden>
+          <div class="toolbar">
+            <button class="btn" id="bSave">Save draft</button>
+            <button class="btn" id="bCopy">Copy Markdown</button>
+            <button class="btn" id="bDlMd">Download .md</button>
+            <button class="btn" id="bDlHtml">Download for Word (.html)</button>
+            <span class="note" id="draftMsg"></span>
+          </div>
+          <article class="doc" id="draftOut"></article>
+        </div>
+        <div id="reviewOut"></div>
+        <div class="empty" id="benchEmpty">Pick an opportunity, add the solicitation text, then run the three steps. The analysis maps every requirement and scoring criterion against the company file. The draft follows the solicitation's own section order and marks <mark class="need">[NEEDED: …]</mark> wherever a fact is missing and <mark class="consider">[CONSIDER: …]</mark> where an optional commitment would score points. The evaluator pass scores the draft criterion by criterion and lists the fixes worth making before submission.</div>
+      </div>
+    </div>
+  </main>
+
   <!-- ========================= PORTFOLIO ========================= -->
   <main id="view-portfolio" role="tabpanel" aria-labelledby="tab-portfolio" hidden>
     <div class="sheet">
@@ -170,32 +308,21 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
         <h2>Capability statement</h2>
         <p class="lead">United CCR (C.C.R. United LLC) is a Cypress, Texas commercial contractor that builds, cleans, maintains and restores facilities across Texas and the southern U.S., with 24/7 emergency response for fire, water, storm and mold losses. Founded in 2019 by Texas A&amp;M graduate Cody Allen Tatum, the company was named a 2025 Aggie 100 honoree for revenue growth.</p>
         <div class="cols">
-          <div class="card"><div class="big">2019</div><p>Founded May 3, 2019. About 7 years in business at bid time.</p><p class="note">Source: Aggie 100 honoree profile</p></div>
-          <div class="card"><div class="big">49.79%</div><p>Three-year compound annual revenue growth, ranked #49 of the 2025 Aggie 100. Ranked from figures checked by an independent accounting firm.</p><p class="note">Source: Aggie 100 honoree profile and methodology</p></div>
-          <div class="card"><div class="big">24/7</div><p>Emergency response for fire, water, storm and mold. Licensed and insured, serving Houston and statewide.</p><p class="note">Source: unitedccr.com (self-reported)</p></div>
-          <div class="card"><div class="big">4 lines</div><p>Construct, Clean, Maintain, Restore: one contract can cover a facility from build-out through upkeep and loss recovery.</p><p class="note">Source: unitedccr.com</p></div>
+          <div class="card"><div class="big">2019</div><p>Founded May 3, 2019. About 7 years in business.</p><p class="note">Source: Aggie 100 honoree profile</p></div>
+          <div class="card"><div class="big">49.79%</div><p>Three-year compound annual revenue growth, ranked #49 of the 2025 Aggie 100, from figures checked by an independent accounting firm.</p><p class="note">Source: Aggie 100</p></div>
+          <div class="card"><div class="big">24/7</div><p>Emergency response for fire, water, storm and mold. Licensed and insured, serving Houston and statewide.</p><p class="note">Source: unitedccr.com</p></div>
+          <div class="card"><div class="big" id="pfProjects">0</div><p>Documented past projects in the company file, ready to cite as past performance.</p><p class="note">Source: Company file</p></div>
         </div>
       </section>
-
       <section>
-        <h2>Company facts for bid forms</h2>
-        <div class="tbl"><table>
-          <thead><tr><th>Field</th><th>Value</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>Legal name</td><td>C.C.R. United LLC</td><td><span class="st s">Confirm on TX SOS</span></td></tr>
-            <tr><td>Trade names</td><td>United CCR; United Construct Clean Restore</td><td><span class="st v">Verified</span></td></tr>
-            <tr><td>Owner / President</td><td>Cody Allen Tatum, Texas A&amp;M Class of 2015 (founder, owner, president)</td><td><span class="st v">Verified</span></td></tr>
-            <tr><td>Headquarters</td><td>Cypress, TX (Harris County). Street address not published online.</td><td><span class="st s">Add street address</span></td></tr>
-            <tr><td>Phone / email</td><td class="mono">(832) 683-7433 · info@unitedccr.com</td><td><span class="st v">From company site</span></td></tr>
-            <tr><td>Founded</td><td>May 3, 2019</td><td><span class="st v">Verified</span></td></tr>
-            <tr><td>Service area</td><td>Houston and statewide Texas; markets across the southern U.S.</td><td><span class="st v">From company site</span></td></tr>
-            <tr><td>Client sectors</td><td>Corporate offices, medical facilities, luxury retail, large-scale developments</td><td><span class="st s">Self-reported</span></td></tr>
-            <tr><td>SAM.gov / UEI</td><td>No public entity record found</td><td><span class="st n">Register before federal bids</span></td></tr>
-            <tr><td>Texas HUB / CMBL</td><td>Not found in public sources</td><td><span class="st n">Check eligibility</span></td></tr>
-          </tbody>
-        </table></div>
+        <h2>RFP metrics scorecard</h2>
+        <p class="note">What evaluators score. Rows switch to the company's own figures as soon as they are entered in the company file.</p>
+        <div class="tbl"><table><thead><tr><th>Metric</th><th>Value</th><th>Status</th></tr></thead><tbody id="scorecard"></tbody></table></div>
       </section>
-
+      <section>
+        <h2>Past performance</h2>
+        <div id="pfProjectList"></div>
+      </section>
       <section>
         <h2>Service lines and codes</h2>
         <div class="tbl"><table>
@@ -203,73 +330,28 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
           <tbody>
             <tr><td><b>Construct</b></td><td>Ground-up construction, site development, buildouts and renovations, project management</td><td class="mono">236220, 236118, 238910</td><td>Renovation bids, tenant finish-out, job order contracts (JOC), CSP/CMAR packages</td></tr>
             <tr><td><b>Clean</b></td><td>Specialized cleaning, janitorial, post-construction and post-disaster cleaning</td><td class="mono">561720, 561790</td><td>Custodial term contracts for cities, ISDs, state agencies</td></tr>
-            <tr><td><b>Maintain</b></td><td>Integrated facilities maintenance, commercial roofing, preventive maintenance, long-term care</td><td class="mono">238160, 238990, 561210</td><td>Roof repair/replacement, on-call maintenance, facility O&amp;M</td></tr>
-            <tr><td><b>Restore</b></td><td>Fire, water and storm damage; mold remediation; emergency roofing; roof, siding and structural storm repairs</td><td class="mono">562910, 236118, 238160</td><td>Pre-positioned disaster recovery contracts, remediation and restoration term contracts</td></tr>
+            <tr><td><b>Maintain</b></td><td>Integrated facilities maintenance, commercial roofing, preventive maintenance</td><td class="mono">238160, 238990, 561210</td><td>Roof repair/replacement, on-call maintenance, facility O&amp;M</td></tr>
+            <tr><td><b>Restore</b></td><td>Fire, water and storm damage; mold remediation; emergency roofing; storm repairs</td><td class="mono">562910, 236118, 238160</td><td>Pre-positioned disaster recovery, remediation and restoration term contracts</td></tr>
           </tbody>
         </table></div>
       </section>
-
       <section>
-        <h2>Leadership experience</h2>
+        <h2>Leadership</h2>
         <div class="card">
           <h4>Cody Allen Tatum, Founder &amp; President</h4>
-          <p>Texas A&amp;M University, Class of 2015. Before founding United CCR in 2019, a Cody Tatum with a Texas A&amp;M degree is listed as Project Manager / Superintendent at Cavalry Construction &amp; Restoration from 2014. Cavalry is a Houston-based insurance restoration contractor (since 1989) serving commercial, industrial, multifamily and religious facilities. If confirmed, that gives roughly 12 years of commercial restoration and construction management.</p>
-          <p class="note">Sources: Aggie 100 honoree profile; third-party professional profiles (Apollo, LinkedIn). Confirm the Cavalry role with Cody before citing it.</p>
+          <p>Texas A&amp;M University, Class of 2015. Third-party profiles list a Cody Tatum with a Texas A&amp;M degree as Project Manager / Superintendent at Cavalry Construction &amp; Restoration from 2014, a Houston insurance restoration contractor serving commercial, industrial, multifamily and religious facilities. Confirm in the company file before citing.</p>
         </div>
       </section>
-
-      <section>
-        <h2>RFP metrics scorecard</h2>
-        <p class="note">What evaluators score, and where United CCR stands on each from public sources. Items marked "Needed" are not published anywhere; collect them once and reuse them in every response.</p>
-        <div class="tbl"><table>
-          <thead><tr><th>Metric</th><th>Value</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>Years in business</td><td>7 (since May 2019)</td><td><span class="st v">Verified</span></td></tr>
-            <tr><td>Revenue growth</td><td>49.79% 3-year CAGR, Aggie 100 #49 (2025)</td><td><span class="st v">Verified</span></td></tr>
-            <tr><td>Key personnel experience</td><td>Founder: ~12 years in construction and restoration</td><td><span class="st s">Confirm</span></td></tr>
-            <tr><td>Annual revenue, last 3 years</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
-            <tr><td>Employees and crew count by trade</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
-            <tr><td>Bonding capacity (single / aggregate)</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
-            <tr><td>Insurance limits (GL, auto, umbrella, WC)</td><td>"Licensed and insured"; limits not stated</td><td><span class="st n">Needed</span></td></tr>
-            <tr><td>Safety: EMR and OSHA TRIR, 3 years</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
-            <tr><td>Emergency response time to site</td><td>24/7 response claimed; no hour figure</td><td><span class="st n">Needed</span></td></tr>
-            <tr><td>Equipment inventory (dehumidifiers, air movers, extractors, generators)</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
-            <tr><td>Certifications (IICRC firm, TDLR mold remediation, HUB, roofing manufacturer)</td><td>None found publicly</td><td><span class="st n">Needed</span></td></tr>
-            <tr><td>Past projects: 3 to 5 references in the last 5 years</td><td>No public project records</td><td><span class="st n">Needed</span></td></tr>
-            <tr><td>Online reviews</td><td>Company site claims 4.8 from 127 reviews, but the two reviews embedded in the site code read like template placeholders</td><td><span class="st n">Do not cite yet</span></td></tr>
-          </tbody>
-        </table></div>
-      </section>
-
-      <section>
-        <h2>Past performance log</h2>
-        <p class="note">No individual United CCR jobs are published online, so this log has to come from the company's records. Each row below is what public evaluators ask for. The repository's <span class="mono">portfolio/projects.csv</span> uses the same columns.</p>
-        <div class="tbl"><table>
-          <thead><tr><th>Field</th><th>Why evaluators want it</th></tr></thead>
-          <tbody>
-            <tr><td>Project, owner, owner type (public / private, sector)</td><td>Shows similar clients; public owners carry more weight on public bids</td></tr>
-            <tr><td>City, county, state</td><td>Proves local presence and response capability</td></tr>
-            <tr><td>Service line, NAICS, loss type (fire / water / storm / mold)</td><td>Matches the solicitation scope</td></tr>
-            <tr><td>Contract value and final value; change-order %</td><td>Shows size capacity and cost control</td></tr>
-            <tr><td>Square footage, units, buildings</td><td>Shows scale</td></tr>
-            <tr><td>Start, finish, scheduled finish; time to mobilize</td><td>On-time delivery and emergency speed</td></tr>
-            <tr><td>Peak crew size; self-performed %</td><td>Workforce capacity</td></tr>
-            <tr><td>Safety incidents</td><td>Most RFPs score safety</td></tr>
-            <tr><td>Reference name, title, phone, email</td><td>Required on nearly every public bid</td></tr>
-          </tbody>
-        </table></div>
-      </section>
-
       <section>
         <h2>To widen eligibility</h2>
         <ol class="steps">
-          <li><b>Register in SAM.gov</b> for a UEI. Free, takes a few weeks, and is required for any federal award, including FEMA-funded local work that checks exclusions.</li>
-          <li><b>Register on the Texas Comptroller's CMBL</b> (Centralized Master Bidders List) so state agencies send solicitations directly.</li>
-          <li><b>Check HUB eligibility.</b> Texas HUB certification requires at least 51% ownership by a minority, woman or service-disabled veteran. If it applies, it adds weight on state contracts and makes United CCR attractive as a subcontractor to prime bidders with HUB goals.</li>
-          <li><b>Get a TDLR mold remediation contractor license</b> before bidding Texas mold work; the scanner flags every Texas mold job until one is on file.</li>
-          <li><b>Obtain a bonding letter</b> from a surety with single and aggregate limits. Most public construction above $50,000 to $100,000 needs payment and performance bonds.</li>
-          <li><b>Pursue cooperative contracts</b> (TIPS, BuyBoard, Choice Partners). A co-op award lets ISDs, cities and counties buy from United CCR without running their own bid.</li>
-          <li><b>Pursue IICRC Certified Firm status</b>; restoration RFPs often require IICRC-certified technicians.</li>
+          <li><b>Register in SAM.gov</b> for a UEI. Free; takes a few weeks; required for any federal award.</li>
+          <li><b>Register on the Texas Comptroller's CMBL</b> so state agencies send solicitations directly.</li>
+          <li><b>Check Texas HUB eligibility</b> (at least 51% owned by a minority, woman or service-disabled veteran).</li>
+          <li><b>Get a TDLR mold remediation contractor license</b> before bidding Texas mold work.</li>
+          <li><b>Obtain a surety bonding letter</b> with single and aggregate limits.</li>
+          <li><b>Pursue cooperative contracts</b> (TIPS, BuyBoard, Choice Partners) so ISDs, cities and counties can buy without their own bid.</li>
+          <li><b>Pursue IICRC Certified Firm status</b> for restoration RFPs.</li>
         </ol>
       </section>
     </div>
@@ -280,40 +362,98 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
 <script>
 (function () {
   "use strict";
-  var raw = document.getElementById("rfp-data").textContent.trim();
-  var DATA = null;
-  try { DATA = JSON.parse(raw); } catch (e) { DATA = null; }
-  if (!DATA) DATA = { opportunities: [], counts: {}, sources_run: [], hq: { label: "Cypress, TX", lat: 29.9691, lon: -95.6972 } };
 
+  /* ------------------------------------------------------------ utilities */
   var $ = function (id) { return document.getElementById(id); };
-  var state = { q: "", tier: "", sort: "priority", showInel: false, open: null };
-  try { var s = localStorage.getItem("rfp-sort"); if (s) state.sort = s; } catch (e) {}
-
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function fmtDate(iso) {
     if (!iso) return null;
     var d = new Date(iso.length <= 10 ? iso + "T12:00:00" : iso + "Z");
-    if (isNaN(d)) return iso;
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    return isNaN(d) ? iso : d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
   }
   function daysLeft(o) {
     if (!o.due) return null;
-    var d = new Date(o.due + (o.due.length <= 10 ? "T23:59:00" : "Z"));
-    return (d - new Date()) / 86400000;
+    return (new Date(o.due + (o.due.length <= 10 ? "T23:59:00" : "Z")) - new Date()) / 86400000;
   }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function present(v) { return Array.isArray(v) ? v.length > 0 : v != null && String(v).trim() !== ""; }
+  function copyText(text, btn, label) {
+    var done = function () { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = label; }, 1600); };
+    var fail = function () {
+      var ta = document.createElement("textarea"); ta.value = text; ta.rows = 8; ta.style.width = "100%";
+      btn.parentNode.appendChild(ta); ta.select(); btn.textContent = "Select and copy the text below";
+    };
+    try { navigator.clipboard.writeText(text).then(done, fail); } catch (e) { fail(); }
+  }
+
+  /* Small, safe Markdown renderer: escapes everything first, then adds structure. */
+  function inline(s) {
+    return s
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
+      .replace(/\[NEEDED:([^\]]*)\]/g, '<mark class="need">[NEEDED:$1]</mark>')
+      .replace(/\[CONSIDER:([^\]]*)\]/g, '<mark class="consider">[CONSIDER:$1]</mark>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  }
+  function md(src) {
+    var lines = esc(src || "").split(/\r?\n/), out = [], i = 0;
+    var isRow = function (l) { return /^\s*\|.*\|\s*$/.test(l); };
+    var cells = function (l) { return l.trim().replace(/^\||\|$/g, "").split("|").map(function (c) { return inline(c.trim()); }); };
+    while (i < lines.length) {
+      var l = lines[i];
+      if (!l.trim()) { i++; continue; }
+      var h = /^(#{1,4})\s+(.*)$/.exec(l);
+      if (h) { out.push("<h" + h[1].length + ">" + inline(h[2]) + "</h" + h[1].length + ">"); i++; continue; }
+      if (/^\s*(---|\*\*\*)\s*$/.test(l)) { out.push("<hr>"); i++; continue; }
+      if (isRow(l) && i + 1 < lines.length && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i + 1])) {
+        var head = cells(l), body = []; i += 2;
+        while (i < lines.length && isRow(lines[i])) { body.push(cells(lines[i])); i++; }
+        out.push('<div class="tbl"><table><thead><tr>' + head.map(function (c) { return "<th>" + c + "</th>"; }).join("") + "</tr></thead><tbody>" +
+          body.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + c + "</td>"; }).join("") + "</tr>"; }).join("") + "</tbody></table></div>");
+        continue;
+      }
+      if (/^\s*([-*+]|\d+[.)])\s+/.test(l)) {
+        var ordered = /^\s*\d+[.)]\s+/.test(l), items = [];
+        while (i < lines.length && /^\s*([-*+]|\d+[.)])\s+/.test(lines[i])) { items.push(inline(lines[i].replace(/^\s*([-*+]|\d+[.)])\s+/, ""))); i++; }
+        out.push((ordered ? "<ol>" : "<ul>") + items.map(function (x) { return "<li>" + x + "</li>"; }).join("") + (ordered ? "</ol>" : "</ul>"));
+        continue;
+      }
+      if (/^&gt;\s?/.test(l)) {
+        var q = [];
+        while (i < lines.length && /^&gt;\s?/.test(lines[i])) { q.push(inline(lines[i].replace(/^&gt;\s?/, ""))); i++; }
+        out.push("<blockquote>" + q.join("<br>") + "</blockquote>"); continue;
+      }
+      var para = [];
+      while (i < lines.length && lines[i].trim() && !/^(#{1,4})\s/.test(lines[i]) && !isRow(lines[i]) && !/^\s*([-*+]|\d+[.)])\s+/.test(lines[i]) && !/^&gt;/.test(lines[i])) { para.push(inline(lines[i])); i++; }
+      out.push("<p>" + para.join("<br>") + "</p>");
+    }
+    return out.join("\n");
+  }
+
+  /* ------------------------------------------------------------ scan data */
+  var DATA = null;
+  try { DATA = JSON.parse($("rfp-data").textContent.trim()); } catch (e) { DATA = null; }
+  if (!DATA) DATA = { opportunities: [], counts: {}, sources_run: [], hq: { label: "Cypress, TX", lat: 29.9691, lon: -95.6972 } };
   var STATUS = { eligible: "Eligible", check: "Eligible, check first", ineligible: "Not eligible" };
+  var state = { q: "", tier: "", sort: "priority", showInel: false, open: null };
+  try { var s0 = localStorage.getItem("rfp-sort"); if (s0) state.sort = s0; } catch (e) {}
 
+  /* ------------------------------------------------------------ tabs */
+  var TABS = ["opps", "profile", "draft", "portfolio"];
   function setTab(which) {
-    var opps = which === "opps";
-    $("tab-opps").setAttribute("aria-selected", opps);
-    $("tab-portfolio").setAttribute("aria-selected", !opps);
-    $("view-opps").hidden = !opps;
-    $("view-portfolio").hidden = opps;
+    TABS.forEach(function (t) {
+      $("tab-" + t).setAttribute("aria-selected", t === which);
+      $("view-" + t).hidden = t !== which;
+    });
+    if (which === "portfolio") renderPortfolio();
+    if (which === "draft") renderBenchState();
   }
-  $("tab-opps").onclick = function () { setTab("opps"); };
-  $("tab-portfolio").onclick = function () { setTab("portfolio"); };
-  if (location.hash === "#portfolio") setTab("portfolio");
+  TABS.forEach(function (t) { $("tab-" + t).onclick = function () { setTab(t); }; });
+  var hashTab = location.hash.replace("#", "");
+  if (TABS.indexOf(hashTab) >= 0) setTab(hashTab);
 
+  /* ------------------------------------------------------------ opportunities */
   function renderMeta() {
     var gen = DATA.generated_at ? new Date(DATA.generated_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "not yet run";
     $("meta").innerHTML =
@@ -321,49 +461,41 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
       "<span>Sources <b>" + esc((DATA.sources_run || []).join(", ") || "none") + "</b></span>" +
       "<span>HQ <b>" + esc(DATA.hq.label) + "</b></span>" +
       "<span>Service states <b>" + esc((DATA.service_states || []).join(" ")) + "</b></span>";
-    var opps = DATA.opportunities, c = { eligible: 0, check: 0, ineligible: 0 }, near = 0;
-    opps.forEach(function (o) { c[o.status] = (c[o.status] || 0) + 1; if (o.status !== "ineligible" && o.miles != null && o.miles <= 150) near++; });
+    var c = { eligible: 0, check: 0, ineligible: 0 }, near = 0;
+    DATA.opportunities.forEach(function (o) { c[o.status] = (c[o.status] || 0) + 1; if (o.status !== "ineligible" && o.miles != null && o.miles <= 150) near++; });
     $("summary").innerHTML =
       '<div class="ok"><div class="n">' + c.eligible + '</div><div class="l">Eligible</div></div>' +
       '<div class="warn"><div class="n">' + c.check + '</div><div class="l">Eligible, check first</div></div>' +
       '<div><div class="n">' + near + '</div><div class="l">Biddable within 150 mi</div></div>' +
       '<div class="bad"><div class="n">' + c.ineligible + '</div><div class="l">Not eligible</div></div>';
     var tiers = [];
-    opps.forEach(function (o) { if (o.tier && tiers.indexOf(o.tier) < 0) tiers.push(o.tier); });
-    $("tier").innerHTML = '<option value="">All distances</option>' + tiers.map(function (t) { return '<option>' + esc(t) + '</option>'; }).join("");
+    DATA.opportunities.forEach(function (o) { if (o.tier && tiers.indexOf(o.tier) < 0) tiers.push(o.tier); });
+    $("tier").innerHTML = '<option value="">All distances</option>' + tiers.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
     $("tier").value = state.tier;
     $("sort").value = state.sort;
+    fillOppSelect();
   }
 
   function filtered() {
-    var q = state.q.toLowerCase();
+    var q = state.q.toLowerCase(), big = 1e9;
     var out = DATA.opportunities.filter(function (o) {
       if (!state.showInel && o.status === "ineligible") return false;
       if (state.tier && o.tier !== state.tier) return false;
-      if (q && [o.title, o.agency, o.city, o.state, o.number].join(" ").toLowerCase().indexOf(q) < 0) return false;
-      return true;
+      return !q || [o.title, o.agency, o.city, o.state, o.number].join(" ").toLowerCase().indexOf(q) >= 0;
     });
-    var big = 1e9;
     var key = {
-      priority: function (o) { return -o.priority; },
-      fit: function (o) { return -o.fit; },
+      priority: function (o) { return -o.priority; }, fit: function (o) { return -o.fit; },
       miles: function (o) { return o.miles == null ? big : o.miles; },
       due: function (o) { var d = daysLeft(o); return d == null ? big : d; }
     }[state.sort];
-    return out.sort(function (a, b) {
-      var r = (a.status === "ineligible") - (b.status === "ineligible");
-      return r || key(a) - key(b) || b.priority - a.priority;
-    });
+    return out.sort(function (a, b) { return ((a.status === "ineligible") - (b.status === "ineligible")) || key(a) - key(b) || b.priority - a.priority; });
   }
 
   function brief(o) {
-    var lines = [
-      o.title, (o.agency || "Agency not stated") + (o.number ? " · " + o.number : ""),
+    var lines = [o.title, (o.agency || "Agency not stated") + (o.number ? " · " + o.number : ""),
       "Location: " + ([o.city, o.state].filter(Boolean).join(", ") || "not stated") + (o.miles != null ? " (" + o.miles + " mi from Cypress HQ)" : ""),
       "Due: " + (fmtDate(o.due) || "not stated") + " · Type: " + (o.type || "n/a") + (o.set_aside ? " · Set-aside: " + o.set_aside : ""),
-      "Priority " + o.priority + "/100 (fit " + o.fit + ", proximity " + o.proximity + ")",
-      "Status: " + STATUS[o.status]
-    ];
+      "Priority " + o.priority + "/100 (fit " + o.fit + ", proximity " + o.proximity + ")", "Status: " + STATUS[o.status]];
     (o.fit_reasons || []).forEach(function (r) { lines.push("+ " + r); });
     (o.ineligible_reasons || []).forEach(function (r) { lines.push("x " + r); });
     (o.flags || []).forEach(function (r) { lines.push("! " + r); });
@@ -374,52 +506,42 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
   function renderList() {
     var items = filtered();
     if (!items.length) {
-      $("list").innerHTML = '<div class="empty">' + (DATA.opportunities.length
-        ? "No opportunities match these filters."
-        : "No opportunities yet. The nightly scan fills this list from SAM.gov, agency bid feeds and imported CSV exports. Use Load scan file to open the latest results.") + "</div>";
+      $("list").innerHTML = '<div class="empty">' + (DATA.opportunities.length ? "No opportunities match these filters."
+        : "No opportunities yet. The daily scan fills this list from SAM.gov, agency bid feeds and imported CSV exports. Use Load scan file to open the latest results.") + "</div>";
       return;
     }
     $("list").innerHTML = items.map(function (o) {
-      var dl = daysLeft(o), soon = dl != null && dl < 7;
+      var dl = daysLeft(o), soon = dl != null && dl < 7, isOpen = state.open === o.id;
       var due = o.due ? fmtDate(o.due) + (dl != null ? " · " + Math.max(0, Math.ceil(dl)) + " days" : "") : "No deadline posted";
       var loc = [o.city, o.state].filter(Boolean).join(", ") || "Location not stated";
-      var isOpen = state.open === o.id;
-      var d = "";
-      if (isOpen) {
-        var li = function (arr) { return arr && arr.length ? "<ul>" + arr.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : ""; };
-        d = '<div class="detail">' +
-          (o.description ? "<div>" + esc(o.description) + "</div>" : "") +
-          (o.fit_reasons && o.fit_reasons.length ? "<div><b>Why it fits</b>" + li(o.fit_reasons) + "</div>" : "") +
-          (o.ineligible_reasons && o.ineligible_reasons.length ? "<div><b>Why not eligible</b>" + li(o.ineligible_reasons) + "</div>" : "") +
-          (o.flags && o.flags.length ? "<div><b>Check before bidding</b>" + li(o.flags) + "</div>" : "") +
-          '<div class="facts">' +
-            (o.number ? "<span>No. <b class='mono'>" + esc(o.number) + "</b></span>" : "") +
-            (o.naics ? "<span>NAICS <b class='mono'>" + esc(o.naics) + "</b></span>" : "") +
-            (o.set_aside ? "<span>Set-aside <b>" + esc(o.set_aside) + "</b></span>" : "") +
-            (o.posted ? "<span>Posted <b>" + esc(fmtDate(o.posted)) + "</b></span>" : "") +
-            "<span>Source <b>" + esc(o.source) + "</b></span>" +
-            (o.contact ? "<span>Contact <b>" + esc(o.contact) + "</b></span>" : "") +
-          "</div>" +
-          '<div class="row">' + (o.url ? '<a class="btn" href="' + esc(o.url) + '" target="_blank" rel="noopener">Open solicitation</a>' : "") +
-          '<button class="btn" data-copy="' + esc(o.id) + '">Copy bid/no-bid brief</button></div>' +
-        "</div>";
-      }
+      var li = function (arr) { return arr && arr.length ? "<ul>" + arr.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : ""; };
+      var d = !isOpen ? "" : '<div class="detail">' +
+        (o.description ? "<div>" + esc(o.description) + "</div>" : "") +
+        (o.fit_reasons && o.fit_reasons.length ? "<div><b>Why it fits</b>" + li(o.fit_reasons) + "</div>" : "") +
+        (o.ineligible_reasons && o.ineligible_reasons.length ? "<div><b>Why not eligible</b>" + li(o.ineligible_reasons) + "</div>" : "") +
+        (o.flags && o.flags.length ? "<div><b>Check before bidding</b>" + li(o.flags) + "</div>" : "") +
+        '<div class="facts">' + (o.number ? "<span>No. <b class='mono'>" + esc(o.number) + "</b></span>" : "") +
+        (o.naics ? "<span>NAICS <b class='mono'>" + esc(o.naics) + "</b></span>" : "") +
+        (o.set_aside ? "<span>Set-aside <b>" + esc(o.set_aside) + "</b></span>" : "") +
+        (o.posted ? "<span>Posted <b>" + esc(fmtDate(o.posted)) + "</b></span>" : "") +
+        "<span>Source <b>" + esc(o.source) + "</b></span>" + (o.contact ? "<span>Contact <b>" + esc(o.contact) + "</b></span>" : "") + "</div>" +
+        '<div class="row">' + (o.url ? '<a class="btn" href="' + esc(o.url) + '" target="_blank" rel="noopener">Open solicitation</a>' : "") +
+        (o.status !== "ineligible" ? '<button class="btn primary" data-draft="' + esc(o.id) + '">Draft a response</button>' : "") +
+        '<button class="btn" data-copy="' + esc(o.id) + '">Copy bid/no-bid brief</button></div></div>';
       return '<article class="opp' + (isOpen ? " sel" : "") + '" id="o-' + esc(o.id) + '">' +
         '<div class="score"><span class="n">' + o.priority + '</span><span class="l">priority</span></div>' +
-        '<div class="main"><div class="head"><button class="title" data-open="' + esc(o.id) + '" aria-expanded="' + isOpen + '">' + esc(o.title) + "</button></div>" +
+        '<div class="main"><button class="title" data-open="' + esc(o.id) + '" aria-expanded="' + isOpen + '">' + esc(o.title) + "</button>" +
         '<div class="facts"><span><b>' + esc(o.agency || "Agency not stated") + "</b></span><span>" + esc(loc) + (o.miles != null ? " · <b class='mono'>" + o.miles + " mi</b>" : "") + "</span>" +
         '<span class="' + (soon ? "due-soon" : "") + '">' + esc(due) + "</span></div>" +
         '<div class="chips"><span class="chip ' + o.status + '">' + STATUS[o.status] + '</span><span class="chip tier">' + esc(o.tier) + "</span>" +
-        (o.type ? '<span class="chip">' + esc(o.type) + "</span>" : "") + '<span class="chip">Fit ' + o.fit + "</span></div>" +
-        d + "</div></article>";
+        (o.type ? '<span class="chip">' + esc(o.type) + "</span>" : "") + '<span class="chip">Fit ' + o.fit + "</span></div>" + d + "</div></article>";
     }).join("");
   }
 
   function renderRadar() {
-    var svg = $("radar"), C = 160, R = 132, MAX = 700, hq = DATA.hq;
+    var C = 160, R = 132, MAX = 700, hq = DATA.hq, out = [], unplaced = 0;
     var r = function (mi) { return Math.sqrt(Math.min(mi, MAX) / MAX) * R; };
     var col = { eligible: "var(--ok)", check: "var(--warn)", ineligible: "var(--bad)" };
-    var out = [];
     [[60, "60"], [150, "150"], [450, "450"], [700, "700 mi"]].forEach(function (t) {
       out.push('<circle cx="' + C + '" cy="' + C + '" r="' + r(t[0]).toFixed(1) + '" fill="none" stroke="var(--line)" stroke-width="1"/>');
       out.push('<text x="' + (C + 3) + '" y="' + (C - r(t[0]) + 11).toFixed(1) + '" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">' + t[1] + "</text>");
@@ -427,74 +549,664 @@ ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80
     out.push('<line x1="' + C + '" y1="' + (C - R - 6) + '" x2="' + C + '" y2="' + (C + R + 6) + '" stroke="var(--line)"/>');
     out.push('<line x1="' + (C - R - 6) + '" y1="' + C + '" x2="' + (C + R + 6) + '" y2="' + C + '" stroke="var(--line)"/>');
     out.push('<text x="' + C + '" y="12" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">N</text>');
-    var unplaced = 0;
-    var visible = filtered();
-    visible.slice().reverse().forEach(function (o) {
+    filtered().slice().reverse().forEach(function (o) {
       var x, y;
       if (o.point && o.miles != null) {
         var la1 = hq.lat * Math.PI / 180, la2 = o.point[0] * Math.PI / 180, dl = (o.point[1] - hq.lon) * Math.PI / 180;
         var b = Math.atan2(Math.sin(dl) * Math.cos(la2), Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dl));
-        var rr = r(o.miles);
-        x = C + rr * Math.sin(b); y = C - rr * Math.cos(b);
+        x = C + r(o.miles) * Math.sin(b); y = C - r(o.miles) * Math.cos(b);
       } else {
         var a = (225 + unplaced * 14) * Math.PI / 180; unplaced++;
         x = C + (R + 16) * Math.sin(a); y = C - (R + 16) * Math.cos(a);
       }
       var sel = state.open === o.id;
-      out.push('<circle class="pt" data-open="' + esc(o.id) + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (sel ? 7 : 5) + '" fill="' + col[o.status] + '" stroke="' + (sel ? "var(--ink)" : "var(--surface)") + '" stroke-width="' + (sel ? 2 : 1.5) + '" style="cursor:pointer"><title>' + esc(o.title + (o.miles != null ? " · " + o.miles + " mi" : " · location not stated")) + "</title></circle>");
+      out.push('<circle data-open="' + esc(o.id) + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (sel ? 7 : 5) + '" fill="' + col[o.status] + '" stroke="' + (sel ? "var(--ink)" : "var(--surface)") + '" stroke-width="' + (sel ? 2 : 1.5) + '" style="cursor:pointer"><title>' + esc(o.title + (o.miles != null ? " · " + o.miles + " mi" : " · location not stated")) + "</title></circle>");
     });
     out.push('<rect x="' + (C - 5) + '" y="' + (C - 5) + '" width="10" height="10" fill="var(--ink)" transform="rotate(45 ' + C + " " + C + ')"/>');
     out.push('<text x="' + (C + 9) + '" y="' + (C + 16) + '" font-size="10" font-weight="600" fill="var(--ink)" font-family="IBM Plex Sans, sans-serif">Cypress HQ</text>');
-    svg.innerHTML = out.join("");
+    $("radar").innerHTML = out.join("");
   }
+  function renderOpps() { renderList(); renderRadar(); }
 
-  function render() { renderList(); renderRadar(); }
-
-  document.addEventListener("click", function (e) {
-    var t = e.target.closest("[data-open]");
-    if (t) {
-      var id = t.getAttribute("data-open");
-      state.open = state.open === id ? null : id;
-      render();
-      if (t.tagName.toLowerCase() === "circle") { var el = $("o-" + id); if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
-      return;
-    }
-    var c = e.target.closest("[data-copy]");
-    if (c) {
-      var o = DATA.opportunities.filter(function (x) { return x.id === c.getAttribute("data-copy"); })[0];
-      var text = brief(o);
-      var done = function () { c.textContent = "Copied"; setTimeout(function () { c.textContent = "Copy bid/no-bid brief"; }, 1600); };
-      try {
-        navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, c); });
-      } catch (err) { fallbackCopy(text, c); }
-    }
-  });
-  function fallbackCopy(text, btn) {
-    var ta = document.createElement("textarea"); ta.value = text; ta.rows = 8; ta.style.width = "100%";
-    btn.parentNode.parentNode.appendChild(ta); ta.select(); btn.textContent = "Select and copy the text below";
-  }
-
-  $("q").oninput = function (e) { state.q = e.target.value; render(); };
-  $("tier").onchange = function (e) { state.tier = e.target.value; render(); };
-  $("sort").onchange = function (e) { state.sort = e.target.value; try { localStorage.setItem("rfp-sort", state.sort); } catch (x) {} render(); };
-  $("showInel").onchange = function (e) { state.showInel = e.target.checked; render(); };
+  $("q").oninput = function (e) { state.q = e.target.value; renderOpps(); };
+  $("tier").onchange = function (e) { state.tier = e.target.value; renderOpps(); };
+  $("sort").onchange = function (e) { state.sort = e.target.value; try { localStorage.setItem("rfp-sort", state.sort); } catch (x) {} renderOpps(); };
+  $("showInel").onchange = function (e) { state.showInel = e.target.checked; renderOpps(); };
   $("file").onchange = function (e) {
     var f = e.target.files[0]; if (!f) return;
     var rd = new FileReader();
     rd.onload = function () {
       try {
         var d = JSON.parse(rd.result);
-        if (!d || !Array.isArray(d.opportunities)) throw new Error("no opportunities list");
+        if (!d || !Array.isArray(d.opportunities)) throw new Error("no list");
         d.hq = d.hq || DATA.hq; DATA = d; state.open = null;
         $("fileNote").textContent = "Showing " + f.name + ".";
-        renderMeta(); render();
-      } catch (err) {
-        $("fileNote").textContent = "That file is not a scan result. Choose data/opportunities.json from the scanner repository.";
-      }
+        renderMeta(); renderOpps();
+      } catch (err) { $("fileNote").textContent = "That file is not a scan result. Choose data/opportunities.json from the scanner repository."; }
     };
     rd.readAsText(f);
   };
 
-  renderMeta(); render();
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-open]");
+    if (t) {
+      var id = t.getAttribute("data-open");
+      state.open = state.open === id ? null : id;
+      renderOpps();
+      if (t.tagName.toLowerCase() === "circle") { var el = $("o-" + id); if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+      return;
+    }
+    var c = e.target.closest("[data-copy]");
+    if (c) { var o = DATA.opportunities.filter(function (x) { return x.id === c.getAttribute("data-copy"); })[0]; copyText(brief(o), c, "Copy bid/no-bid brief"); return; }
+    var dr = e.target.closest("[data-draft]");
+    if (dr) { $("dOpp").value = dr.getAttribute("data-draft"); onOppChange(); setTab("draft"); window.scrollTo(0, 0); }
+  });
+
+  /* ------------------------------------------------------------ company file schema */
+  var YN = ["Yes", "No", "In progress", "Not sure"];
+  var SCHEMA = [
+    { id: "identity", title: "Company and registrations", why: "Every bid form asks for these. Registrations decide which bids the scanner marks eligible.", fields: [
+      { id: "legal_name", label: "Legal entity name (exactly as filed with the Texas SOS)", type: "text", key: true },
+      { id: "dba", label: "Assumed names (d/b/a)", type: "text" },
+      { id: "address", label: "Headquarters street address", type: "text", key: true },
+      { id: "other_offices", label: "Other offices, warehouses or yards", type: "text", help: "City and what is kept there" },
+      { id: "founded", label: "Date founded", type: "text" },
+      { id: "entity_type", label: "Entity type", type: "select", options: ["LLC", "Corporation", "S-Corp", "Partnership", "Other"] },
+      { id: "owner", label: "Owner(s) and ownership %", type: "text", key: true },
+      { id: "contact", label: "Person who signs proposals (name, title, email, phone)", type: "text", key: true },
+      { id: "website", label: "Website", type: "text" },
+      { id: "sam", label: "SAM.gov registration", type: "select", options: ["Active", "In progress", "Not registered"], key: true, help: "Needed for any federal award" },
+      { id: "uei", label: "UEI and CAGE code (if registered)", type: "text" },
+      { id: "cmbl", label: "On the Texas Comptroller's CMBL?", type: "select", options: YN },
+      { id: "small_business", label: "Small business under SBA size standards?", type: "select", options: YN },
+      { id: "hub_eligible", label: "At least 51% owned and run by a woman, a minority or a service-disabled veteran?", type: "select", options: ["Yes", "No", "Prefer not to say"], help: "Decides whether Texas HUB certification is possible" },
+      { id: "certs", label: "Certifications held", type: "multi", options: ["Texas HUB", "SBA 8(a)", "HUBZone", "WOSB", "EDWOSB", "SDVOSB", "VOSB", "MBE/WBE (NCTRCA/HMSDC/WBEA)", "City of Houston MWBE"], key: true },
+      { id: "states", label: "States where you will perform work", type: "multi", options: ["TX", "LA", "OK", "AR", "NM", "MS", "AL", "FL", "GA", "TN", "SC"] },
+      { id: "state_licenses", label: "Contractor licenses in other states (state, license type, number)", type: "textarea", wide: true, help: "e.g. Louisiana LSLBC commercial license" }
+    ]},
+    { id: "licenses", title: "Licenses and credentials", why: "Restoration and roofing RFPs often require these outright. A missing one is the most common reason a bid gets thrown out.", fields: [
+      { id: "tdlr_mold_remediation", label: "TDLR mold remediation contractor license # (or blank)", type: "text", key: true },
+      { id: "tdlr_mold_assessment", label: "TDLR mold assessment consultant license # (or partner firm)", type: "text" },
+      { id: "iicrc_firm", label: "IICRC Certified Firm?", type: "select", options: YN, key: true },
+      { id: "iicrc_techs", label: "IICRC technician certifications on staff (WRT, ASD, AMRT, FSRT, etc. with counts)", type: "textarea", wide: true },
+      { id: "asbestos_lead", label: "Asbestos (DSHS) / EPA lead RRP certifications", type: "text" },
+      { id: "roof_mfr", label: "Roofing manufacturer certifications (GAF, Carlisle, Firestone, etc.)", type: "text" },
+      { id: "osha", label: "OSHA 30 / OSHA 10 holders (counts)", type: "text", key: true },
+      { id: "other_creds", label: "Other credentials (CPR/first aid, confined space, forklift, etc.)", type: "textarea", wide: true }
+    ]},
+    { id: "capacity", title: "Financial capacity, bonding and insurance", why: "Owners check that you can carry the job. Bonding and insurance limits are pass/fail on most public construction.", fields: [
+      { id: "rev_2023", label: "Revenue 2023", type: "money", key: true }, { id: "rev_2024", label: "Revenue 2024", type: "money", key: true },
+      { id: "rev_2025", label: "Revenue 2025", type: "money", key: true }, { id: "rev_2026", label: "Revenue 2026 (projected)", type: "money" },
+      { id: "largest_job", label: "Largest single contract completed ($ and what it was)", type: "text", key: true },
+      { id: "typical_job", label: "Typical job size range", type: "text" },
+      { id: "bond_single", label: "Bonding capacity: single project", type: "money", key: true },
+      { id: "bond_aggregate", label: "Bonding capacity: aggregate", type: "money" },
+      { id: "surety", label: "Surety company and agent", type: "text" },
+      { id: "ins_gl", label: "General liability (per occurrence / aggregate)", type: "text", key: true },
+      { id: "ins_auto", label: "Commercial auto limit", type: "text" },
+      { id: "ins_umbrella", label: "Umbrella / excess limit", type: "text", key: true },
+      { id: "ins_wc", label: "Workers' compensation (yes/no, carrier)", type: "text", key: true },
+      { id: "ins_pollution", label: "Contractor's pollution liability (needed for mold and remediation)", type: "text" },
+      { id: "ins_other", label: "Other coverage (professional, builder's risk, inland marine)", type: "text" }
+    ]},
+    { id: "workforce", title: "Workforce and equipment", why: "Shows evaluators you can staff and equip the job yourself instead of brokering it.", fields: [
+      { id: "employees", label: "Total employees", type: "number", key: true },
+      { id: "field_staff", label: "Field staff by trade (e.g. 6 restoration techs, 4 carpenters, 8 custodians)", type: "textarea", wide: true, key: true },
+      { id: "self_perform", label: "Share of work you self-perform (%)", type: "number" },
+      { id: "subs", label: "Trades you subcontract, and long-term subcontractor partners", type: "textarea", wide: true },
+      { id: "equipment", label: "Drying and remediation equipment (dehumidifiers, air movers, air scrubbers, extractors, generators, with counts)", type: "textarea", wide: true, key: true },
+      { id: "fleet", label: "Trucks, trailers, lifts and other major equipment", type: "textarea", wide: true },
+      { id: "surge", label: "How you add capacity after a major storm (rental partners, traveling crews, mutual aid)", type: "textarea", wide: true }
+    ]},
+    { id: "response", title: "Emergency response", why: "Disaster and restoration contracts are won on speed. Concrete hours beat \"24/7\".", fields: [
+      { id: "dispatch", label: "24/7 dispatch number and how calls are answered", type: "text", key: true },
+      { id: "resp_houston", label: "Time to be on site, Houston metro (hours)", type: "number", key: true },
+      { id: "resp_statewide", label: "Time to be on site elsewhere in Texas (hours)", type: "text", key: true },
+      { id: "mobilize", label: "Crews and equipment you can deploy within 24 / 48 / 72 hours", type: "textarea", wide: true, key: true },
+      { id: "cat_events", label: "Disasters you've worked (Harvey, Uri, Ida, Beryl, derecho…) and what you did", type: "textarea", wide: true, key: true },
+      { id: "largest_loss", label: "Largest single loss handled (sq ft, building type, timeline)", type: "text" }
+    ]},
+    { id: "safety", title: "Safety and quality", why: "Most public RFPs score safety. Many disqualify bidders above a set EMR.", fields: [
+      { id: "emr", label: "Experience Modification Rate (EMR), last 3 years", type: "text", key: true },
+      { id: "trir", label: "OSHA recordable incident rate (TRIR), last 3 years", type: "text" },
+      { id: "osha_citations", label: "OSHA citations in the last 3 years", type: "text", key: true },
+      { id: "safety_program", label: "Written safety program and who runs it", type: "textarea", wide: true },
+      { id: "qaqc", label: "Quality control: how work is checked, documented and closed out", type: "textarea", wide: true, key: true },
+      { id: "warranty", label: "Workmanship warranty you offer", type: "text" },
+      { id: "documentation", label: "Job documentation you provide (photos, moisture logs, Xactimate, daily reports)", type: "textarea", wide: true }
+    ]},
+    { id: "edge", title: "Differentiators and technology", why: "Where the draft earns points above the minimum. Concrete examples beat adjectives.", fields: [
+      { id: "why_us", label: "Why should an owner pick United CCR over a bigger firm? (3 to 5 reasons)", type: "textarea", wide: true, key: true },
+      { id: "client_praise", label: "What do clients thank you for most?", type: "textarea", wide: true },
+      { id: "save_story", label: "A time you saved a client real time or money (what happened, the numbers)", type: "textarea", wide: true, key: true },
+      { id: "tech", label: "Technology you use", type: "multi", options: ["Xactimate", "CompanyCam / photo docs", "Matterport 3D scans", "Drones for roof inspection", "Thermal imaging", "Remote moisture sensors", "Client portal", "Procore / PM software", "GPS fleet tracking"] },
+      { id: "tech_other", label: "Other tools or methods worth mentioning", type: "text" },
+      { id: "one_call", label: "Examples where one client used several of your services (build, clean, maintain, restore)", type: "textarea", wide: true },
+      { id: "community", label: "Local hiring, community work, Aggie network, veteran hiring", type: "textarea", wide: true }
+    ]},
+    { id: "pricing", title: "Pricing and commercial terms", why: "Lets the draft describe your pricing approach. No prices go into a draft unless you put them on the price form.", fields: [
+      { id: "price_method", label: "How you usually price (Xactimate, unit rates, T&M, lump sum)", type: "text" },
+      { id: "labor_rates", label: "Standard T&M labor rates by role (if you have a rate sheet)", type: "textarea", wide: true },
+      { id: "markup", label: "Typical overhead and profit / markup", type: "text" },
+      { id: "terms", label: "Payment terms you accept", type: "text" },
+      { id: "coop", label: "Cooperative contracts held or pursued (TIPS, BuyBoard, Choice Partners)", type: "text" }
+    ]},
+    { id: "prefs", title: "Bid preferences", why: "Tunes the scanner so the list shows jobs you actually want.", fields: [
+      { id: "max_miles", label: "Farthest you would travel for a job (miles)", type: "number" },
+      { id: "min_job", label: "Smallest job worth bidding ($)", type: "money" },
+      { id: "max_job", label: "Largest job you can take on now ($)", type: "money" },
+      { id: "dont_do", label: "Work you don't do or don't want", type: "textarea", wide: true },
+      { id: "target_buyers", label: "Agencies or owners you most want to work for", type: "textarea", wide: true }
+    ]}
+  ];
+  var PROJECT_FIELDS = [
+    { id: "name", label: "Project name", type: "text", key: true }, { id: "owner", label: "Owner / client", type: "text", key: true },
+    { id: "owner_type", label: "Owner type", type: "select", options: ["Private commercial", "Healthcare", "Retail", "Multifamily", "Religious", "Education", "Government", "Industrial", "Insurance carrier / TPA", "General contractor (we were a sub)"] },
+    { id: "city", label: "City, county, state", type: "text", key: true },
+    { id: "line", label: "Service line", type: "multi", options: ["Construct", "Clean", "Maintain", "Restore"] },
+    { id: "loss", label: "Loss type (restoration)", type: "multi", options: ["Water", "Fire/smoke", "Storm/wind/hail", "Flood", "Mold"] },
+    { id: "scope", label: "Scope of work", type: "textarea", wide: true, key: true },
+    { id: "value", label: "Contract value ($)", type: "money", key: true }, { id: "final_value", label: "Final value ($)", type: "money" },
+    { id: "sqft", label: "Square feet / units / buildings", type: "text", key: true }, { id: "dates", label: "Start and finish dates", type: "text", key: true },
+    { id: "on_time", label: "Finished on schedule?", type: "select", options: ["Early", "On time", "Late (owner-caused)", "Late"] },
+    { id: "mobilize_hrs", label: "Hours from call to on site (restoration)", type: "number" }, { id: "crew", label: "Peak crew size", type: "number" },
+    { id: "challenge", label: "Challenge, what you did, and the result", type: "textarea", wide: true, key: true },
+    { id: "ref_name", label: "Reference name and title", type: "text", key: true }, { id: "ref_contact", label: "Reference phone and email", type: "text" },
+    { id: "ref_ok", label: "Has the reference agreed to be contacted?", type: "select", options: ["Yes", "Not asked yet", "No"] },
+    { id: "photos", label: "Link to photos", type: "text" }
+  ];
+  var PERSON_FIELDS = [
+    { id: "name", label: "Name", type: "text", key: true }, { id: "title", label: "Title / role on projects", type: "text", key: true },
+    { id: "years", label: "Years of industry experience", type: "number", key: true }, { id: "certs", label: "Licenses and certifications", type: "text" },
+    { id: "education", label: "Education", type: "text" }, { id: "bio", label: "Short bio: past employers, notable projects", type: "textarea", wide: true, key: true }
+  ];
+
+  /* ------------------------------------------------------------ company file state */
+  var P = {}, PROJECTS = [], PEOPLE = [], DRAFTS = [];
+  var db = null, sample = null, downloads = null, canWrite = true;
+  var dirty = {}, timers = {}, writing = {};
+
+  function fieldHTML(f, prefix, val) {
+    var id = prefix + "-" + f.id, help = f.help ? '<span class="help">' + esc(f.help) + "</span>" : "", input;
+    if (f.type === "textarea") input = '<textarea id="' + id + '" data-f="' + f.id + '">' + esc(val || "") + "</textarea>";
+    else if (f.type === "select") input = '<select id="' + id + '" data-f="' + f.id + '"><option value="">Choose…</option>' + f.options.map(function (o) { return "<option" + (o === val ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select>";
+    else if (f.type === "multi") {
+      var arr = Array.isArray(val) ? val : [];
+      input = '<div class="multi" id="' + id + '" data-f="' + f.id + '" data-multi="1">' + f.options.map(function (o, i) {
+        return '<label><input type="checkbox" id="' + id + "-" + i + '" value="' + esc(o) + '"' + (arr.indexOf(o) >= 0 ? " checked" : "") + ">" + esc(o) + "</label>";
+      }).join("") + "</div>";
+      return '<div class="field wide"><span style="font-weight:600;font-size:.88rem">' + esc(f.label) + "</span>" + input + help + "</div>";
+    } else input = '<input id="' + id + '" data-f="' + f.id + '" ' + (f.type === "number" ? 'type="number" inputmode="decimal"' : f.type === "money" ? 'inputmode="decimal" placeholder="$"' : 'type="text"') + ' value="' + esc(val || "") + '">';
+    return '<div class="field' + (f.wide ? " wide" : "") + '"><label for="' + id + '">' + esc(f.label) + "</label>" + input + help + "</div>";
+  }
+  function readField(el) {
+    if (el.getAttribute("data-multi")) return Array.prototype.filter.call(el.querySelectorAll("input"), function (i) { return i.checked; }).map(function (i) { return i.value; });
+    return el.value;
+  }
+  function sectionPct(sec) {
+    var vals = P[sec.id] || {}, keys = sec.fields.filter(function (f) { return f.key; });
+    var pool = keys.length ? keys : sec.fields;
+    return Math.round(100 * pool.filter(function (f) { return present(vals[f.id]); }).length / pool.length);
+  }
+  function readiness() {
+    var parts = SCHEMA.map(sectionPct);
+    var proj = Math.min(100, Math.round(100 * PROJECTS.length / 5)), ppl = Math.min(100, Math.round(100 * PEOPLE.length / 3));
+    parts.push(proj, proj, ppl);
+    return Math.round(parts.reduce(function (a, b) { return a + b; }, 0) / parts.length);
+  }
+
+  function buildForm() {
+    $("toc").innerHTML = SCHEMA.map(function (s) { return '<li><a href="#sec-' + s.id + '" data-jump="sec-' + s.id + '"><span>' + esc(s.title) + '</span><span class="pct" id="pct-' + s.id + '">0%</span></a></li>'; }).join("") +
+      '<li><a href="#sec-projects" data-jump="sec-projects"><span>Past projects</span><span class="pct" id="pct-projects">0</span></a></li>' +
+      '<li><a href="#sec-people" data-jump="sec-people"><span>Key personnel</span><span class="pct" id="pct-people">0</span></a></li>';
+    $("form").innerHTML = SCHEMA.map(function (s) {
+      return '<section class="fsec" id="sec-' + s.id + '" data-sec="' + s.id + '"><header><h2>' + esc(s.title) + '</h2><span class="saved" id="saved-' + s.id + '"></span></header><p class="why">' + esc(s.why) + '</p><div class="fields">' +
+        s.fields.map(function (f) { return fieldHTML(f, s.id, (P[s.id] || {})[f.id]); }).join("") + "</div></section>";
+    }).join("") +
+      listSection("projects", "Past projects", "The heart of the portfolio. Aim for 5 to 10 jobs from the last five years, biggest and most recent first, with a reference for each. The drafter picks the three most relevant for every bid.", "Add a project") +
+      listSection("people", "Key personnel", "Everyone who would run or supervise a public job. Evaluators score the team, not just the company.", "Add a person");
+  }
+  function listSection(id, title, why, add) {
+    return '<section class="fsec" id="sec-' + id + '"><header><h2>' + title + '</h2><span class="saved" id="saved-' + id + '"></span></header><p class="why">' + why + '</p><div class="items" id="items-' + id + '"></div><div id="editor-' + id + '"></div><div class="row"><button class="btn" data-add="' + id + '">' + add + "</button></div></section>";
+  }
+  function renderLists() {
+    var row = function (kind, x) {
+      var line = kind === "projects" ? [x.owner, x.city, x.value ? "$" + x.value : "", x.dates].filter(present).join(" · ") : [x.title, x.years ? x.years + " yrs" : ""].filter(present).join(" · ");
+      return '<div class="item"><div><b>' + esc(x.name || "Untitled") + '</b><span class="note">' + esc(line) + '</span></div><div class="row"><button class="btn" data-edit="' + kind + ":" + esc(x._id) + '">Edit</button><button class="btn danger" data-del="' + kind + ":" + esc(x._id) + '">Delete</button></div></div>';
+    };
+    $("items-projects").innerHTML = PROJECTS.length ? PROJECTS.map(function (x) { return row("projects", x); }).join("") : '<p class="note">No projects yet.</p>';
+    $("items-people").innerHTML = PEOPLE.length ? PEOPLE.map(function (x) { return row("people", x); }).join("") : '<p class="note">No people yet.</p>';
+  }
+  function openEditor(kind, item) {
+    var fields = kind === "projects" ? PROJECT_FIELDS : PERSON_FIELDS, v = item || {};
+    $("editor-" + kind).innerHTML = '<div class="editor" data-editor="' + kind + '" data-id="' + esc(v._id || uid()) + '"><div class="fields">' +
+      fields.map(function (f) { return fieldHTML(f, "ed-" + kind, v[f.id]); }).join("") +
+      '</div><div class="row"><button class="btn primary" data-save="' + kind + '">Save</button><button class="btn" data-cancel="' + kind + '">Cancel</button></div></div>';
+    $("editor-" + kind).querySelector("input,textarea,select").focus();
+  }
+  function updateProgress() {
+    SCHEMA.forEach(function (s) { var el = $("pct-" + s.id); if (el) el.textContent = sectionPct(s) + "%"; });
+    if ($("pct-projects")) $("pct-projects").textContent = PROJECTS.length;
+    if ($("pct-people")) $("pct-people").textContent = PEOPLE.length;
+    var r = readiness();
+    $("readyPct").textContent = r + "%"; $("readyBar").style.width = r + "%";
+    $("readyNote").textContent = r < 40 ? "Start with registrations, insurance and three past projects." : r < 80 ? "Good base. Projects, response times and safety numbers move the score most." : "Strong file. Keep projects and references current.";
+  }
+  function syncInputs(secId) {
+    if (dirty[secId]) return;
+    var vals = P[secId] || {}, sec = document.querySelector('[data-sec="' + secId + '"]');
+    if (!sec) return;
+    Array.prototype.forEach.call(sec.querySelectorAll("[data-f]"), function (el) {
+      if (el.contains(document.activeElement)) return;
+      var v = vals[el.getAttribute("data-f")];
+      if (el.getAttribute("data-multi")) Array.prototype.forEach.call(el.querySelectorAll("input"), function (i) { i.checked = Array.isArray(v) && v.indexOf(i.value) >= 0; });
+      else el.value = v == null ? "" : v;
+    });
+  }
+
+  function saveSection(secId) {
+    if (!db || !canWrite) return;
+    if (writing[secId]) { timers[secId] = setTimeout(function () { saveSection(secId); }, 400); return; }
+    writing[secId] = true;
+    $("saved-" + secId).textContent = "Saving…"; $("saved-" + secId).className = "saved";
+    db.doc("profile/" + secId).set({ values: P[secId] || {}, updatedAt: new Date().toISOString() }).then(function () {
+      dirty[secId] = false;
+      $("saved-" + secId).textContent = "Saved " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    }, function (e) {
+      $("saved-" + secId).textContent = e && e.code === "invalid_argument" ? "Not saved: you have view-only access" : "Not saved. Edit again to retry.";
+      $("saved-" + secId).className = "saved err";
+    }).then(function () { writing[secId] = false; });
+  }
+  document.addEventListener("input", function (e) {
+    var sec = e.target.closest("[data-sec]"), fe = e.target.closest("[data-f]");
+    if (!sec || !fe || e.target.closest("[data-editor]")) return;
+    var id = sec.getAttribute("data-sec");
+    P[id] = Object.assign({}, P[id] || {}); P[id][fe.getAttribute("data-f")] = readField(fe);
+    dirty[id] = true; updateProgress();
+    clearTimeout(timers[id]); timers[id] = setTimeout(function () { saveSection(id); }, 900);
+  });
+  document.addEventListener("click", function (e) {
+    var j = e.target.closest("[data-jump]");
+    if (j) { e.preventDefault(); var t = $(j.getAttribute("data-jump")); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    var a = e.target.closest("[data-add]"); if (a) { openEditor(a.getAttribute("data-add")); return; }
+    var c = e.target.closest("[data-cancel]"); if (c) { $("editor-" + c.getAttribute("data-cancel")).innerHTML = ""; return; }
+    var ed = e.target.closest("[data-edit]");
+    if (ed) { var p = ed.getAttribute("data-edit").split(":"), arr = p[0] === "projects" ? PROJECTS : PEOPLE; openEditor(p[0], arr.filter(function (x) { return x._id === p[1]; })[0]); return; }
+    var del = e.target.closest("[data-del]");
+    if (del) {
+      if (del.getAttribute("data-armed") !== "1") { del.setAttribute("data-armed", "1"); del.textContent = "Confirm delete"; return; }
+      var q = del.getAttribute("data-del").split(":");
+      if (db) db.collection(q[0]).doc(q[1]).delete().catch(function () { $("saved-" + q[0]).textContent = "Not deleted."; });
+      return;
+    }
+    var sv = e.target.closest("[data-save]");
+    if (sv) {
+      var kind = sv.getAttribute("data-save"), box = sv.closest("[data-editor]"), obj = { updatedAt: new Date().toISOString() };
+      Array.prototype.forEach.call(box.querySelectorAll("[data-f]"), function (el) { obj[el.getAttribute("data-f")] = readField(el); });
+      if (!present(obj.name)) { $("saved-" + kind).textContent = "Add a name first."; return; }
+      if (!db || !canWrite) { $("saved-" + kind).textContent = "Saving needs this page open in Claude with edit access."; return; }
+      sv.disabled = true;
+      db.collection(kind).doc(box.getAttribute("data-id")).set(obj).then(function () {
+        $("editor-" + kind).innerHTML = ""; $("saved-" + kind).className = "saved"; $("saved-" + kind).textContent = "Saved";
+      }, function () { sv.disabled = false; $("saved-" + kind).className = "saved err"; $("saved-" + kind).textContent = "Not saved. Try again."; });
+    }
+  });
+
+  /* ------------------------------------------------------------ knowledge base for drafting */
+  var PUBLIC_FACTS = [
+    "Trade names: United CCR; United Construct Clean Restore. Likely legal name C.C.R. United LLC (confirm).",
+    "Founded May 3, 2019 by Cody Allen Tatum (Texas A&M Class of 2015), founder, owner and president.",
+    "Headquarters Cypress, Texas (Harris County). Phone (832) 683-7433. info@unitedccr.com. unitedccr.com.",
+    "2025 Aggie 100 honoree: ranked #49 with 49.79% three-year compound annual revenue growth, ranked from figures verified by an independent accounting firm.",
+    "Services: ground-up construction, site development, buildouts and renovations, project management; specialized cleaning and janitorial; integrated facilities maintenance, commercial roofing, preventive maintenance; 24/7 emergency restoration for fire, water, storm and mold; emergency roofing; storm repairs to roof, siding and structure.",
+    "Client sectors named on the company site: corporate offices, medical facilities, luxury retail, large-scale developments.",
+    "Service area: Houston and statewide Texas; markets across the southern U.S. Licensed and insured (limits not public).",
+    "Unconfirmed: Cody Tatum may have been Project Manager/Superintendent at Cavalry Construction & Restoration (Houston commercial insurance restoration) from 2014. Treat as [NEEDED: confirm] unless the company file confirms it."
+  ];
+  function fmtVal(v) { return Array.isArray(v) ? v.join(", ") : String(v).trim(); }
+  function knowledge() {
+    var out = ["PUBLIC FACTS (from research; lower priority than the company file):"].concat(PUBLIC_FACTS.map(function (f) { return "- " + f; }));
+    out.push("", "COMPANY FILE (answers from United CCR; authoritative):");
+    SCHEMA.forEach(function (s) {
+      var vals = P[s.id] || {}, rows = s.fields.filter(function (f) { return present(vals[f.id]); }).map(function (f) { return "- " + f.label + ": " + fmtVal(vals[f.id]); });
+      out.push("## " + s.title, rows.length ? rows.join("\n") : "- (not answered)");
+    });
+    out.push("## Past projects");
+    if (!PROJECTS.length) out.push("- (none entered)");
+    PROJECTS.forEach(function (p, i) {
+      out.push("Project " + (i + 1) + ": " + PROJECT_FIELDS.filter(function (f) { return present(p[f.id]); }).map(function (f) { return f.label + ": " + fmtVal(p[f.id]); }).join(" | "));
+    });
+    out.push("## Key personnel");
+    if (!PEOPLE.length) out.push("- (none entered)");
+    PEOPLE.forEach(function (p) { out.push("- " + PERSON_FIELDS.filter(function (f) { return present(p[f.id]); }).map(function (f) { return f.label + ": " + fmtVal(p[f.id]); }).join(" | ")); });
+    return out.join("\n");
+  }
+
+  /* ------------------------------------------------------------ drafting bench */
+  var bench = { analysis: null, draft: "", review: null, ctl: null, draftId: null };
+  function fillOppSelect() {
+    var opts = DATA.opportunities.filter(function (o) { return o.status !== "ineligible"; });
+    var cur = $("dOpp").value;
+    $("dOpp").innerHTML = '<option value="">Choose an opportunity…</option>' + opts.map(function (o) {
+      return '<option value="' + esc(o.id) + '">' + esc(o.title + (o.agency ? " · " + o.agency : "")) + "</option>";
+    }).join("") + '<option value="__other">Another solicitation (not in the scan)</option>';
+    if (cur) $("dOpp").value = cur;
+  }
+  function currentOpp() {
+    var v = $("dOpp").value;
+    if (v === "__other") return { id: "__other", title: $("dTitle").value.trim() || "Untitled solicitation" };
+    return DATA.opportunities.filter(function (o) { return o.id === v; })[0] || null;
+  }
+  function onOppChange() { $("dTitleWrap").hidden = $("dOpp").value !== "__other"; renderBenchState(); }
+  $("dOpp").onchange = onOppChange;
+  $("dText").oninput = function () { $("dCount").textContent = $("dText").value.length.toLocaleString() + " characters"; renderBenchState(); };
+
+  function loadScript(src) {
+    return new Promise(function (res, rej) { var s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = function () { rej(new Error("load")); }; document.head.appendChild(s); });
+  }
+  $("dFile").onchange = function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var st = $("dStatus"); st.className = "status"; st.textContent = "Reading " + f.name + "…";
+    if (/\.pdf$/i.test(f.name) || f.type === "application/pdf") {
+      var base = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+      (window.pdfjsLib ? Promise.resolve() : loadScript(base + "pdf.worker.min.js").then(function () { return loadScript(base + "pdf.min.js"); }))
+        .then(function () { return f.arrayBuffer(); })
+        .then(function (buf) { return window.pdfjsLib.getDocument({ data: buf, isEvalSupported: false }).promise; })
+        .then(function (pdf) {
+          var n = Math.min(pdf.numPages, 150), jobs = [];
+          for (var p = 1; p <= n; p++) jobs.push(pdf.getPage(p).then(function (pg) { return pg.getTextContent(); }).then(function (tc) { return tc.items.map(function (it) { return it.str; }).join(" "); }));
+          return Promise.all(jobs).then(function (pages) { return { text: pages.join("\n\n"), n: n, total: pdf.numPages }; });
+        })
+        .then(function (r) {
+          $("dText").value = r.text; $("dText").oninput();
+          st.textContent = "Read " + r.n + " of " + r.total + " pages from " + f.name + "." + (r.text.trim().length < 200 ? " Very little text came out; this may be a scanned PDF. Paste the text instead." : "");
+        })
+        .catch(function () { st.className = "status err"; st.textContent = "Couldn't read that PDF here. Open it, select all, copy, and paste the text into the box."; });
+    } else {
+      f.text().then(function (t) { $("dText").value = t; $("dText").oninput(); st.textContent = "Loaded " + f.name + "."; });
+    }
+  };
+
+  function oppBlock(o) {
+    if (!o) return "(none selected)";
+    var keep = ["title", "agency", "number", "type", "due", "city", "state", "miles", "tier", "set_aside", "naics", "url", "status", "flags", "fit_reasons", "description"];
+    var x = {}; keep.forEach(function (k) { if (present(o[k])) x[k] = o[k]; });
+    if (o.miles != null) x.distance_note = o.miles + " miles from United CCR's Cypress, TX headquarters";
+    return JSON.stringify(x, null, 1);
+  }
+  function rfpExcerpt() { var t = $("dText").value.trim(); return t.length > 150000 ? t.slice(0, 150000) + "\n[...truncated...]" : t; }
+
+  var ANALYZE_RULES = "You are a public-procurement capture manager reviewing a solicitation for United CCR, a Cypress, Texas commercial contractor (construct, clean, maintain, restore). Read the SOLICITATION and the COMPANY KNOWLEDGE. Reply with only one JSON object, no prose, in exactly this shape:\n" +
+    '{"summary":"2-3 sentences on what the buyer wants","issuer":"","solicitation_number":"","due":"date and time as written","submission_method":"","page_limit":"","contract_term":"","estimated_value":"",' +
+    '"required_sections":["the response sections/order the solicitation asks for"],"evaluation_criteria":[{"criterion":"","weight":"points or % as written"}],' +
+    '"mandatory_requirements":[{"requirement":"","status":"meets|gap|unknown","evidence":"the company fact that meets it, or what is missing"}],' +
+    '"forms_and_attachments":["every form, certificate or attachment to submit"],"key_dates":[{"what":"","when":""}],' +
+    '"risks":["disqualifiers, unusual terms, liquidated damages, insurance or bonding above the company\'s limits"],"questions_for_buyer":["questions worth submitting before the Q&A deadline"],' +
+    '"win_themes":["3-4 themes that connect United CCR\'s real strengths to the evaluation criteria"],' +
+    '"go_no_go":{"score":0,"recommendation":"Go|Go with conditions|No-go","reasons":["short reasons"]}}\n' +
+    "Rules: use only what the documents say; leave a field empty or the list empty when the solicitation does not say. Mark a requirement \"meets\" only when the company knowledge shows it. score is 0-100 likelihood that bidding is worth it, weighing fit, eligibility, capacity, distance and competition.";
+
+  var DRAFT_RULES = "You are the proposal manager for United CCR, a Cypress, Texas commercial contractor (construct, clean, maintain, restore). Write a complete first draft of United CCR's response to the solicitation below.\n\n" +
+    "Ground rules:\n" +
+    "1. Use ONLY facts in COMPANY KNOWLEDGE. Never invent numbers, names, licenses, certifications, projects, clients, prices or references. Where the response needs a missing fact, write [NEEDED: exactly what is missing].\n" +
+    "2. Where an optional commitment would score points but the company has not made it (a value-add, extended warranty, extra reporting, a dedicated contact, a response-time guarantee), write [CONSIDER: the idea and the criterion it earns points on].\n" +
+    "3. Follow the solicitation's required section order and headings when the ANALYSIS lists them; otherwise use the default outline.\n" +
+    "4. Write for the evaluator: open each section with the benefit to the owner, prove it with a specific number or project, and tie it to an evaluation criterion. Short paragraphs, active voice, no filler, no unproven superlatives.\n" +
+    "5. Make proximity concrete: distance from the Cypress headquarters to the site and the response time it allows.\n" +
+    "6. Pick the 3 past projects most relevant to this scope; for each give owner, scope, size, value, schedule result and measurable outcome.\n" +
+    "7. Weave the win themes through the document and quietly answer the evaluator's likely doubts about a young, growing firm (capacity, bonding, safety, continuity) with facts.\n\n" +
+    "Default outline: Cover letter · Executive summary with 3-4 win themes · Compliance matrix (table: Requirement | Where addressed | Status) · Understanding of the need · Technical approach and methodology · Emergency response and mobilization plan (when the scope includes restoration or disaster work) · Project management, staffing and communication · Key personnel · Relevant experience · Safety program · Quality control · Innovation and value-added services · Schedule and milestones · Subcontracting and HUB plan (Texas state agencies require a HUB Subcontracting Plan on contracts of $100,000 or more where subcontracting is probable) · Pricing approach (no prices; list what the price form needs) · Forms and attachments checklist · Before you submit (every [NEEDED] item, every claim to verify, and every [CONSIDER] decision).\n\n" +
+    "Output GitHub-flavored Markdown only, starting with a level-1 heading naming the solicitation.";
+
+  var REVIEW_RULES = "You are a member of a public-sector evaluation committee scoring a proposal. Score the DRAFT strictly against the EVALUATION CRITERIA (if none are given, use: technical approach 30, relevant experience 25, key personnel 15, schedule and responsiveness 15, value and price approach 15). Penalize unsupported claims, vague language, missing required items and [NEEDED] placeholders. Reply with only one JSON object:\n" +
+    '{"overall":0,"verdict":"one sentence","criteria":[{"criterion":"","weight":"","score":0,"max":10,"why":"","fix":"the single most valuable change"}],"top_fixes":["up to 6 changes ranked by points gained"],"compliance_gaps":["required items missing or unclear"],"unsupported_claims":["claims an evaluator would doubt without proof"]}\n' +
+    "overall is 0-100.";
+
+  function setBusy(on, msg) {
+    ["bAnalyze", "bDraft", "bReview"].forEach(function (b) { $(b).disabled = on; });
+    $("bStop").hidden = !on;
+    $("dStatus").className = "status"; $("dStatus").textContent = msg || "";
+    if (!on) renderBenchState();
+  }
+  var ERR = {
+    not_granted: "Claude access was declined for this page. Reload to be asked again.",
+    sampling_disabled: "Claude isn't available on this account.", rate_limited: "Usage limit reached for now. Try again later.",
+    prompt_too_large: "The solicitation is too long. Paste only the scope, requirements and evaluation sections.",
+    invalid_json: "The answer came back in the wrong shape. Run the step again.", refused: "Claude declined this request. Check the pasted text.",
+    session_expired: "Sign in again, then retry.", upstream_error: "The connection dropped. Run the step again."
+  };
+  function fail(e, partialTarget) {
+    if (e && e.code === "cancelled") { setBusy(false, "Stopped."); return; }
+    setBusy(false); $("dStatus").className = "status err";
+    $("dStatus").textContent = (e && ERR[e.code]) || "Something went wrong. Run the step again.";
+    if (partialTarget && e && e.text) partialTarget(e.text);
+  }
+
+  function renderBenchState() {
+    var hasOpp = !!currentOpp(), hasText = $("dText").value.trim().length > 0, ok = !!sample;
+    $("bAnalyze").disabled = !ok || !hasOpp || !hasText;
+    $("bDraft").disabled = !ok || !hasOpp;
+    $("bReview").disabled = !ok || !bench.draft;
+    $("benchEmpty").hidden = !!(bench.analysis || bench.draft);
+    var r = readiness();
+    $("kbNote").textContent = "Company file is " + r + "% complete. " + (r < 50 ? "Drafts will carry many [NEEDED] markers until more is filled in." : "Drafts draw on every answer and project in it.");
+  }
+
+  $("bStop").onclick = function () { if (bench.ctl) bench.ctl.abort(); };
+
+  $("bAnalyze").onclick = function () {
+    var o = currentOpp(); bench.ctl = new AbortController();
+    setBusy(true, "Reading the solicitation and checking every requirement against the company file… this can take a minute.");
+    sample.json(ANALYZE_RULES + "\n\nOPPORTUNITY:\n" + oppBlock(o) + "\n\nCOMPANY KNOWLEDGE:\n" + knowledge() + "\n\nSOLICITATION:\n" + rfpExcerpt(), { signal: bench.ctl.signal, modelTier: "complex" })
+      .then(function (a) { bench.analysis = a && typeof a === "object" ? a : null; renderAnalysis(); setBusy(false, "Analysis ready. Next, write the draft."); })
+      .catch(function (e) { fail(e); });
+  };
+
+  $("bDraft").onclick = function () {
+    var o = currentOpp(); bench.ctl = new AbortController(); bench.review = null; $("reviewOut").innerHTML = "";
+    var text = rfpExcerpt();
+    setBusy(true, "Writing the draft… the first words take up to a minute, then it streams in.");
+    $("draftWrap").hidden = false; $("benchEmpty").hidden = true; $("draftOut").innerHTML = '<p class="note">Thinking…</p>';
+    var prompt = DRAFT_RULES + "\n\nOPPORTUNITY:\n" + oppBlock(o) +
+      "\n\nANALYSIS:\n" + (bench.analysis ? JSON.stringify(bench.analysis) : "(not run)") +
+      "\n\nCOMPANY KNOWLEDGE:\n" + knowledge() +
+      "\n\nSOLICITATION TEXT:\n" + (text || "(not provided: write from the opportunity details and mark solicitation-specific requirements as [NEEDED])");
+    sample(prompt, { signal: bench.ctl.signal, modelTier: "complex", cache: false, onText: function (u) { bench.draft = u.text; $("draftOut").innerHTML = md(u.text); } })
+      .then(function (r) {
+        bench.draft = r.text; bench.draftId = null; $("draftOut").innerHTML = md(r.text);
+        var needs = (r.text.match(/\[NEEDED:/g) || []).length;
+        setBusy(false, (r.truncated ? "The draft was cut short; run it again with a shorter solicitation excerpt. " : "Draft ready. ") + needs + " facts still needed. Next, score it as an evaluator.");
+      })
+      .catch(function (e) { fail(e, function (t) { bench.draft = t; $("draftOut").innerHTML = md(t); }); });
+  };
+
+  $("bReview").onclick = function () {
+    bench.ctl = new AbortController();
+    setBusy(true, "Scoring the draft the way an evaluation committee would…");
+    var crit = bench.analysis && bench.analysis.evaluation_criteria && bench.analysis.evaluation_criteria.length ? JSON.stringify(bench.analysis.evaluation_criteria) : "(none given)";
+    sample.json(REVIEW_RULES + "\n\nEVALUATION CRITERIA:\n" + crit + "\n\nREQUIRED SECTIONS AND MANDATORY ITEMS:\n" +
+      JSON.stringify(bench.analysis ? { required_sections: bench.analysis.required_sections, mandatory: bench.analysis.mandatory_requirements, forms: bench.analysis.forms_and_attachments } : {}) +
+      "\n\nDRAFT:\n" + bench.draft.slice(0, 150000), { signal: bench.ctl.signal })
+      .then(function (r) { bench.review = r; renderReview(); setBusy(false, "Review ready. Apply the top fixes, then save the draft."); })
+      .catch(function (e) { fail(e); });
+  };
+
+  function list(arr, cls) { return arr && arr.length ? "<ul" + (cls ? ' class="' + cls + '"' : "") + ">" + arr.map(function (x) { return "<li>" + esc(typeof x === "string" ? x : JSON.stringify(x)) + "</li>"; }).join("") + "</ul>" : '<p class="note">None found.</p>'; }
+  function renderAnalysis() {
+    var a = bench.analysis;
+    if (!a) { $("analysisOut").innerHTML = ""; return; }
+    var g = a.go_no_go || {}, sc = Number(g.score) || 0, color = sc >= 65 ? "var(--ok)" : sc >= 40 ? "var(--warn)" : "var(--bad)";
+    var reqs = (a.mandatory_requirements || []).map(function (r) { return "<tr><td>" + esc(r.requirement) + '</td><td><span class="chip ' + esc(r.status || "unknown") + '">' + esc(r.status || "unknown") + "</span></td><td>" + esc(r.evidence) + "</td></tr>"; }).join("");
+    var crit = (a.evaluation_criteria || []).map(function (c) { return "<tr><td>" + esc(c.criterion) + '</td><td class="mono">' + esc(c.weight) + "</td></tr>"; }).join("");
+    var facts = [["Issuer", a.issuer], ["Number", a.solicitation_number], ["Due", a.due], ["Submit", a.submission_method], ["Page limit", a.page_limit], ["Term", a.contract_term], ["Value", a.estimated_value]]
+      .filter(function (x) { return present(x[1]); }).map(function (x) { return "<span>" + x[0] + " <b>" + esc(x[1]) + "</b></span>"; }).join("");
+    $("analysisOut").innerHTML = '<div class="panel"><div class="meter"><span class="big" style="color:' + color + '">' + sc + '</span><div><h2>' + esc(g.recommendation || "Bid decision") + "</h2><p class=\"note\" style=\"margin:0\">" + esc(a.summary || "") + "</p></div></div>" +
+      '<div class="facts">' + facts + "</div>" + list(g.reasons) +
+      '<div class="cols2"><div><h3>Evaluation criteria</h3>' + (crit ? '<div class="tbl"><table><thead><tr><th>Criterion</th><th>Weight</th></tr></thead><tbody>' + crit + "</tbody></table></div>" : '<p class="note">Not stated.</p>') + "</div>" +
+      "<div><h3>Win themes</h3>" + list(a.win_themes) + "</div></div>" +
+      "<h3>Mandatory requirements</h3>" + (reqs ? '<div class="tbl"><table><thead><tr><th>Requirement</th><th>Status</th><th>Evidence or gap</th></tr></thead><tbody>' + reqs + "</tbody></table></div>" : '<p class="note">None found.</p>') +
+      '<div class="cols2"><div><h3>Forms and attachments</h3>' + list(a.forms_and_attachments) + "</div><div><h3>Risks</h3>" + list(a.risks) + "</div></div>" +
+      '<div class="cols2"><div><h3>Key dates</h3>' + list((a.key_dates || []).map(function (d) { return (d.what || "") + ": " + (d.when || ""); })) + "</div><div><h3>Questions to ask the buyer</h3>" + list(a.questions_for_buyer) + "</div></div></div>";
+    $("benchEmpty").hidden = true;
+  }
+  function renderReview() {
+    var r = bench.review; if (!r) { $("reviewOut").innerHTML = ""; return; }
+    var sc = Number(r.overall) || 0, color = sc >= 75 ? "var(--ok)" : sc >= 55 ? "var(--warn)" : "var(--bad)";
+    var rows = (r.criteria || []).map(function (c) { return "<tr><td>" + esc(c.criterion) + '</td><td class="mono">' + esc(c.score) + "/" + esc(c.max || 10) + "</td><td>" + esc(c.why) + "</td><td>" + esc(c.fix) + "</td></tr>"; }).join("");
+    $("reviewOut").innerHTML = '<div class="panel"><div class="meter"><span class="big" style="color:' + color + '">' + sc + '</span><div><h2>Evaluator score</h2><p class="note" style="margin:0">' + esc(r.verdict || "") + "</p></div></div>" +
+      (rows ? '<div class="tbl"><table><thead><tr><th>Criterion</th><th>Score</th><th>Why</th><th>Fix</th></tr></thead><tbody>' + rows + "</tbody></table></div>" : "") +
+      "<h3>Top fixes</h3>" + list(r.top_fixes) + '<div class="cols2"><div><h3>Compliance gaps</h3>' + list(r.compliance_gaps) + "</div><div><h3>Claims to back up</h3>" + list(r.unsupported_claims) + "</div></div></div>";
+  }
+
+  function draftTitle() { var o = currentOpp(); return (o && o.title) || "Draft response"; }
+  $("bCopy").onclick = function () { copyText(bench.draft, $("bCopy"), "Copy Markdown"); };
+  function save(name, data) {
+    if (!downloads) { $("draftMsg").textContent = "Downloads work when this page is open in Claude. Use Copy Markdown instead."; return; }
+    downloads.save({ filename: name, data: data }).then(function () { $("draftMsg").textContent = "Saved " + name; }, function (e) {
+      $("draftMsg").textContent = e && e.code === "declined" ? "" : "Download unavailable here. Use Copy Markdown instead.";
+    });
+  }
+  function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "draft"; }
+  $("bDlMd").onclick = function () { save("United-CCR-" + slug(draftTitle()) + ".md", bench.draft); };
+  $("bDlHtml").onclick = function () {
+    var html = '<!doctype html><html><head><meta charset="utf-8"><title>' + esc(draftTitle()) + "</title><style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.4;max-width:7.5in;margin:0.6in auto;color:#111}h1{font-size:20pt}h2{font-size:15pt;border-bottom:1px solid #999;margin-top:18pt}h3{font-size:12pt}table{border-collapse:collapse;width:100%}th,td{border:1px solid #999;padding:4pt 6pt;text-align:left;vertical-align:top}mark.need{background:#fde2e0}mark.consider{background:#fff1b8}</style></head><body>" + md(bench.draft) + "</body></html>";
+    save("United-CCR-" + slug(draftTitle()) + ".html", html);
+  };
+  $("bSave").onclick = function () {
+    if (!db || !canWrite) { $("draftMsg").textContent = "Saving needs this page open in Claude with edit access."; return; }
+    var o = currentOpp(), id = bench.draftId || uid();
+    $("bSave").disabled = true;
+    db.collection("drafts").doc(id).set({
+      title: draftTitle(), oppId: o ? o.id : null, createdAt: new Date().toISOString(),
+      analysis: bench.analysis || null, review: bench.review || null, draft: bench.draft.slice(0, 200000)
+    }).then(function () { bench.draftId = id; $("draftMsg").textContent = "Draft saved for everyone with access."; },
+      function (e) { $("draftMsg").textContent = e && e.code === "quota_exceeded" ? "Storage is full. Delete old drafts first." : "Not saved. Try again."; })
+      .then(function () { $("bSave").disabled = false; });
+  };
+  function renderDrafts() {
+    $("drafts").innerHTML = DRAFTS.length ? DRAFTS.map(function (d) {
+      return '<div class="item"><div><b>' + esc(d.title) + '</b><span class="note">' + esc(new Date(d.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })) + (d.review && d.review.overall != null ? " · score " + esc(d.review.overall) : "") +
+        '</span></div><div class="row"><button class="btn" data-opendraft="' + esc(d._id) + '">Open</button><button class="btn danger" data-deldraft="' + esc(d._id) + '">Delete</button></div></div>';
+    }).join("") : '<p class="note">No saved drafts yet.</p>';
+  }
+  document.addEventListener("click", function (e) {
+    var o = e.target.closest("[data-opendraft]");
+    if (o) {
+      var d = DRAFTS.filter(function (x) { return x._id === o.getAttribute("data-opendraft"); })[0]; if (!d) return;
+      bench.analysis = d.analysis; bench.review = d.review; bench.draft = d.draft || ""; bench.draftId = d._id;
+      $("dOpp").value = d.oppId || "";
+      $("draftWrap").hidden = !bench.draft; $("draftOut").innerHTML = md(bench.draft);
+      renderAnalysis(); renderReview(); renderBenchState(); window.scrollTo(0, 0); return;
+    }
+    var x = e.target.closest("[data-deldraft]");
+    if (x) {
+      if (x.getAttribute("data-armed") !== "1") { x.setAttribute("data-armed", "1"); x.textContent = "Confirm delete"; return; }
+      if (db) db.collection("drafts").doc(x.getAttribute("data-deldraft")).delete();
+    }
+  });
+
+  /* ------------------------------------------------------------ export for the scanner */
+  function scannerOverrides() {
+    var id = P.identity || {}, lic = P.licenses || {}, prefs = P.prefs || {};
+    var certMap = { "Texas HUB": "TX-HUB", "SBA 8(a)": "8A", "HUBZone": "HZ", "WOSB": "WOSB", "EDWOSB": "EDWOSB", "SDVOSB": "SDVOSB", "VOSB": "VOSB" };
+    var certs = (id.certs || []).map(function (c) { return certMap[c]; }).filter(Boolean);
+    if (id.small_business !== "No") certs.unshift("SB");
+    var o = { certifications_held: certs, licenses_held: present(lic.tdlr_mold_remediation) ? ["TDLR-MOLD-REMEDIATION"] : [], sam_registered: id.sam === "Active" };
+    if (present(id.states)) o.service_states = id.states;
+    if (present(prefs.max_miles)) o.max_miles = Number(prefs.max_miles);
+    return o;
+  }
+  $("exportProfile").onclick = function () {
+    var payload = { exported_at: new Date().toISOString(), scanner: scannerOverrides(), answers: P, projects: PROJECTS, people: PEOPLE };
+    if (!downloads) { $("exportNote").textContent = "Export works when this page is open in Claude."; return; }
+    downloads.save({ filename: "profile.json", data: JSON.stringify(payload, null, 1) }).then(function () {
+      $("exportNote").textContent = "Saved. Commit it to united-ccr/portfolio/profile.json and the next scan uses it.";
+    }, function (e) { if (!e || e.code !== "declined") $("exportNote").textContent = "Download unavailable here."; });
+  };
+  $("exportProjects").onclick = function () {
+    var cols = PROJECT_FIELDS.map(function (f) { return f.id; });
+    var q = function (v) { v = v == null ? "" : fmtVal(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var csv = [cols.join(",")].concat(PROJECTS.map(function (p) { return cols.map(function (c) { return q(p[c]); }).join(","); })).join("\n");
+    if (!downloads) { $("exportNote").textContent = "Export works when this page is open in Claude."; return; }
+    downloads.save({ filename: "projects.csv", data: csv }).catch(function () {});
+  };
+
+  /* ------------------------------------------------------------ portfolio */
+  function v(sec, f) { var x = (P[sec] || {})[f]; return present(x) ? fmtVal(x) : null; }
+  function money(x) { var n = Number(String(x).replace(/[^0-9.]/g, "")); return n ? "$" + n.toLocaleString() : x; }
+  function renderPortfolio() {
+    var rev = ["2023", "2024", "2025"].map(function (y) { var x = v("capacity", "rev_" + y); return x ? y + ": " + money(x) : null; }).filter(Boolean).join(" · ");
+    var rows = [
+      ["Years in business", "7 (since May 2019)", "v", null],
+      ["Revenue growth", "49.79% 3-year CAGR, Aggie 100 #49 (2025)", "v", null],
+      ["Annual revenue", rev || null],
+      ["Largest contract completed", v("capacity", "largest_job")],
+      ["Employees and crews", [v("workforce", "employees") && v("workforce", "employees") + " employees", v("workforce", "field_staff")].filter(Boolean).join(" · ") || null],
+      ["Bonding capacity", [v("capacity", "bond_single") && "Single " + money(v("capacity", "bond_single")), v("capacity", "bond_aggregate") && "aggregate " + money(v("capacity", "bond_aggregate"))].filter(Boolean).join(", ") || null],
+      ["Insurance", [v("capacity", "ins_gl") && "GL " + v("capacity", "ins_gl"), v("capacity", "ins_umbrella") && "umbrella " + v("capacity", "ins_umbrella"), v("capacity", "ins_pollution") && "pollution " + v("capacity", "ins_pollution")].filter(Boolean).join(" · ") || null],
+      ["Safety (EMR)", v("safety", "emr")],
+      ["Emergency response", [v("response", "resp_houston") && v("response", "resp_houston") + " hrs to site in Houston metro", v("response", "resp_statewide") && v("response", "resp_statewide") + " statewide"].filter(Boolean).join(" · ") || null],
+      ["Equipment", v("workforce", "equipment")],
+      ["Licenses and certifications", [v("licenses", "tdlr_mold_remediation") && "TDLR mold remediation " + v("licenses", "tdlr_mold_remediation"), v("licenses", "iicrc_firm") === "Yes" && "IICRC Certified Firm", v("identity", "certs"), v("licenses", "roof_mfr")].filter(Boolean).join(" · ") || null],
+      ["SAM.gov", v("identity", "sam")],
+      ["Past-project references", PROJECTS.length ? PROJECTS.length + " documented" + (PROJECTS.filter(function (p) { return p.ref_ok === "Yes"; }).length ? ", " + PROJECTS.filter(function (p) { return p.ref_ok === "Yes"; }).length + " references confirmed" : "") : null]
+    ];
+    $("scorecard").innerHTML = rows.map(function (r) {
+      var fixed = r[2] === "v", val = r[1];
+      var st = fixed ? '<span class="st v">Verified</span>' : val ? '<span class="st v">From company file</span>' : '<span class="st n">Needed</span>';
+      return "<tr><td>" + esc(r[0]) + "</td><td>" + esc(val || "Not provided yet") + "</td><td>" + st + "</td></tr>";
+    }).join("");
+    $("pfProjects").textContent = PROJECTS.length;
+    $("pfProjectList").innerHTML = PROJECTS.length ? '<div class="cols">' + PROJECTS.map(function (p) {
+      return '<div class="card"><h4>' + esc(p.name) + '</h4><p class="note">' + esc([p.owner, p.city].filter(present).join(" · ")) + "</p><p>" + esc(p.scope || "") + '</p><div class="facts">' +
+        (p.value ? "<span>Value <b>" + esc(money(p.value)) + "</b></span>" : "") + (p.sqft ? "<span>Size <b>" + esc(p.sqft) + "</b></span>" : "") +
+        (p.dates ? "<span>Dates <b>" + esc(p.dates) + "</b></span>" : "") + (p.on_time ? "<span>Schedule <b>" + esc(p.on_time) + "</b></span>" : "") + "</div>" +
+        (p.challenge ? '<p class="note" style="margin-top:6px">' + esc(p.challenge) + "</p>" : "") + "</div>";
+    }).join("") + "</div>" : '<div class="empty">No past projects entered yet. Add them in the Company file; each one appears here as a past-performance card and becomes available to the drafter.</div>';
+  }
+
+  /* ------------------------------------------------------------ capabilities */
+  buildForm(); renderLists(); updateProgress(); renderMeta(); renderOpps(); renderBenchState(); renderPortfolio();
+  function setInputsEnabled(on) {
+    Array.prototype.forEach.call(document.querySelectorAll("#form input, #form select, #form textarea, [data-add]"), function (el) { el.disabled = !on; });
+  }
+  setInputsEnabled(false);
+  $("profileNotice").hidden = false; $("profileNotice").textContent = "Connecting to the shared company file…";
+  $("draftNotice").hidden = true;
+
+  if (!window.claude || !window.claude.use) {
+    $("profileNotice").textContent = "This copy of the page can't save answers. Open the RFP Radar in Claude to fill in the company file.";
+    $("draftNotice").hidden = false; $("draftNotice").textContent = "Drafting runs on Claude. Open the RFP Radar in Claude to use it.";
+    renderBenchState();
+    return;
+  }
+  Promise.all([window.claude.use("db"), window.claude.use("sample"), window.claude.use("downloads"), window.claude.use("user")]).then(function (caps) {
+    db = caps[0]; sample = caps[1]; downloads = caps[2];
+    var user = caps[3];
+    if (!sample) { $("draftNotice").hidden = false; $("draftNotice").textContent = "Drafting isn't available in this view. Sign in to Claude and open the page there."; }
+    renderBenchState();
+    if (!db) { $("profileNotice").textContent = "The company file needs you to be signed in to Claude."; return; }
+    var perm = user && user.can ? user.can("data.write") : Promise.resolve(null);
+    Promise.resolve(perm).then(function (w) {
+      canWrite = w !== false;
+      $("profileNotice").hidden = canWrite;
+      if (!canWrite) $("profileNotice").textContent = "You can read the company file but not change it. Ask the owner for Contributor access.";
+      setInputsEnabled(canWrite);
+    });
+    db.collection("profile").onSnapshot(function (snap) {
+      snap.docs.forEach(function (d) { if (!dirty[d.id]) { P[d.id] = Object.assign({}, (d.data() || {}).values || {}); syncInputs(d.id); } });
+      updateProgress(); renderPortfolio(); renderBenchState();
+    }, function () { $("profileNotice").hidden = false; $("profileNotice").textContent = "Lost the connection to the company file. Reload the page."; });
+    var listen = function (name, setter, sortKey) {
+      db.collection(name).onSnapshot(function (snap) {
+        var arr = snap.docs.map(function (d) { var o = Object.assign({}, d.data()); o._id = d.id; return o; });
+        arr.sort(sortKey);
+        setter(arr);
+      }, function () {});
+    };
+    listen("projects", function (a) { PROJECTS = a; renderLists(); updateProgress(); renderPortfolio(); renderBenchState(); }, function (a, b) { return String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")); });
+    listen("people", function (a) { PEOPLE = a; renderLists(); updateProgress(); renderPortfolio(); }, function (a, b) { return String(a.name || "").localeCompare(String(b.name || "")); });
+    listen("drafts", function (a) { DRAFTS = a; renderDrafts(); }, function (a, b) { return String(b.createdAt || "").localeCompare(String(a.createdAt || "")); });
+  });
 })();
 </script>
