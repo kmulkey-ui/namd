@@ -1,0 +1,500 @@
+<title>United CCR RFP Radar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a bid desk. Distance rings from the Cypress HQ beside a ranked bid list; portfolio as a second sheet. */
+:root {
+  --bg: #F2F5F4; --surface: #FFFFFF; --ink: #15201E; --muted: #5A6764; --line: #D3DCD9;
+  --accent: #0B6E79; --accent-soft: #DDEFF0; --ok: #2C7A37; --warn: #9C5D0E; --bad: #B3261E;
+  --ok-soft: #E3F1E4; --warn-soft: #F7EBD9; --bad-soft: #F8E2E0;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1413; --surface: #16201F; --ink: #E4ECEA; --muted: #93A29F; --line: #293634;
+  --accent: #52B8C3; --accent-soft: #15373A; --ok: #6DC27B; --warn: #E2A452; --bad: #F08A80;
+  --ok-soft: #173020; --warn-soft: #36280F; --bad-soft: #3A1A18; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1413; --surface: #16201F; --ink: #E4ECEA; --muted: #93A29F; --line: #293634;
+  --accent: #52B8C3; --accent-soft: #15373A; --ok: #6DC27B; --warn: #E2A452; --bad: #F08A80;
+  --ok-soft: #173020; --warn-soft: #36280F; --bad-soft: #3A1A18; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5 }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .01em; text-wrap: balance; margin: 0 }
+h1 { font-size: 2.1rem; line-height: 1.05 }
+h2 { font-size: 1.55rem; line-height: 1.1 }
+h3 { font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted) }
+a { color: var(--accent) }
+button, select, input { font: inherit; color: inherit }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums }
+
+header.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; padding-bottom: 14px; border-bottom: 2px solid var(--ink) }
+.brand small { display: block; font-family: var(--mono); font-size: .78rem; color: var(--muted); letter-spacing: .04em; text-transform: uppercase }
+.tabs { display: flex; gap: 4px }
+.tabs button { background: none; border: 1px solid var(--line); padding: 7px 14px; border-radius: 3px; cursor: pointer; font-weight: 600 }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .82rem; color: var(--muted); margin-top: 10px }
+.meta b { color: var(--ink); font-weight: 600 }
+
+.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-block: 18px }
+.summary div { background: var(--surface); padding: 12px 14px }
+.summary .n { font-family: var(--display); font-size: 2rem; line-height: 1; font-weight: 700 }
+.summary .l { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em }
+.summary .ok .n { color: var(--ok) } .summary .warn .n { color: var(--warn) } .summary .bad .n { color: var(--bad) }
+
+.desk { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 20px; align-items: start }
+.radar { background: var(--surface); border: 1px solid var(--line); padding: 14px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px) }
+.radar svg { width: 100%; height: auto; display: block }
+.radar .cap { font-size: .8rem; color: var(--muted); margin-top: 8px }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .78rem; margin-top: 8px }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0 }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px }
+.controls input[type="search"] { flex: 1 1 220px; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); background: var(--surface); border-radius: 3px }
+.controls select { padding: 8px; border: 1px solid var(--line); background: var(--surface); border-radius: 3px; max-width: 100% }
+.controls label.chk { display: flex; gap: 6px; align-items: center; font-size: .85rem; color: var(--muted) }
+.btn { background: var(--surface); border: 1px solid var(--ink); padding: 7px 12px; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: .85rem }
+.btn:hover { background: var(--accent-soft) }
+
+.list { display: flex; flex-direction: column; gap: 10px }
+.opp { background: var(--surface); border: 1px solid var(--line); display: grid; grid-template-columns: 64px minmax(0, 1fr); }
+.opp.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) }
+.score { display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--line); padding: 10px 4px }
+.score .n { font-family: var(--display); font-size: 1.9rem; font-weight: 700; line-height: 1 }
+.score .l { font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted) }
+.opp .main { padding: 12px 14px; min-width: 0 }
+.opp .head { display: flex; gap: 10px; justify-content: space-between; align-items: start }
+.opp .title { font-weight: 600; font-size: 1rem; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; overflow-wrap: anywhere }
+.opp .title:hover { color: var(--accent) }
+.facts { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .84rem; color: var(--muted); margin-top: 4px }
+.facts b { color: var(--ink); font-weight: 500 }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px }
+.chip { font-size: .72rem; font-weight: 600; letter-spacing: .03em; padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); white-space: nowrap }
+.chip.eligible { background: var(--ok-soft); color: var(--ok); border-color: transparent }
+.chip.check { background: var(--warn-soft); color: var(--warn); border-color: transparent }
+.chip.ineligible { background: var(--bad-soft); color: var(--bad); border-color: transparent }
+.chip.tier { color: var(--accent); border-color: var(--accent) }
+.due-soon { color: var(--bad) !important; font-weight: 600 }
+.detail { border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 10px; font-size: .88rem; display: grid; gap: 8px }
+.detail ul { margin: 0; padding-left: 18px }
+.detail .row { display: flex; flex-wrap: wrap; gap: 8px }
+.empty { background: var(--surface); border: 1px dashed var(--line); padding: 24px; color: var(--muted) }
+.note { font-size: .82rem; color: var(--muted) }
+
+/* Portfolio sheet */
+.sheet { display: grid; gap: 28px; margin-top: 22px }
+.sheet section { display: grid; gap: 12px }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px }
+.card { background: var(--surface); border: 1px solid var(--line); padding: 14px 16px }
+.card h4 { margin: 0 0 6px; font-family: var(--display); font-size: 1.2rem }
+.card p { margin: 0 }
+.lead { font-size: 1.05rem; max-width: 68ch }
+.tbl { overflow-x: auto; border: 1px solid var(--line); background: var(--surface) }
+table { border-collapse: collapse; width: 100%; font-size: .88rem }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top }
+th { font-size: .74rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600 }
+tr:last-child td { border-bottom: 0 }
+.st { font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; white-space: nowrap }
+.st.v { background: var(--ok-soft); color: var(--ok) } .st.s { background: var(--warn-soft); color: var(--warn) } .st.n { background: var(--bad-soft); color: var(--bad) }
+.big { font-family: var(--display); font-size: 2.6rem; font-weight: 700; line-height: 1; color: var(--accent) }
+ol.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80ch }
+
+@media (max-width: 860px) {
+  .desk { grid-template-columns: 1fr }
+  .radar { position: static }
+  .summary { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+}
+@media (prefers-reduced-motion: no-preference) { .opp { transition: border-color .15s } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <small>United CCR · Construct · Clean · Restore</small>
+      <h1>RFP Radar</h1>
+    </div>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-opps" aria-selected="true" aria-controls="view-opps">Opportunities</button>
+      <button role="tab" id="tab-portfolio" aria-selected="false" aria-controls="view-portfolio">Portfolio</button>
+    </div>
+  </header>
+
+  <!-- ========================= OPPORTUNITIES ========================= -->
+  <main id="view-opps" role="tabpanel" aria-labelledby="tab-opps">
+    <div class="meta" id="meta"></div>
+    <div class="summary" id="summary"></div>
+
+    <div class="desk">
+      <aside class="radar">
+        <h3>Distance from Cypress HQ</h3>
+        <svg id="radar" viewBox="0 0 320 320" role="img" aria-label="Opportunities plotted by distance and direction from the Cypress, Texas headquarters"></svg>
+        <div class="legend">
+          <span><i style="background:var(--ok)"></i>Eligible</span>
+          <span><i style="background:var(--warn)"></i>Eligible, check first</span>
+          <span><i style="background:var(--bad)"></i>Not eligible</span>
+        </div>
+        <p class="cap">Rings at 60, 150, 450 and 700 miles mark the priority tiers. North is up. Opportunities without a location sit outside the rings.</p>
+      </aside>
+
+      <div>
+        <div class="controls">
+          <input type="search" id="q" placeholder="Search title, agency, city" aria-label="Search opportunities">
+          <select id="tier" aria-label="Filter by distance tier"><option value="">All distances</option></select>
+          <select id="sort" aria-label="Sort">
+            <option value="priority">Sort: priority</option>
+            <option value="due">Sort: due soonest</option>
+            <option value="miles">Sort: nearest</option>
+            <option value="fit">Sort: best fit</option>
+          </select>
+          <label class="chk"><input type="checkbox" id="showInel"> Show not eligible</label>
+          <label class="btn" for="file">Load scan file</label>
+          <input type="file" id="file" accept="application/json,.json" hidden>
+        </div>
+        <div class="list" id="list"></div>
+        <p class="note" id="fileNote"></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================= PORTFOLIO ========================= -->
+  <main id="view-portfolio" role="tabpanel" aria-labelledby="tab-portfolio" hidden>
+    <div class="sheet">
+      <section>
+        <h2>Capability statement</h2>
+        <p class="lead">United CCR (C.C.R. United LLC) is a Cypress, Texas commercial contractor that builds, cleans, maintains and restores facilities across Texas and the southern U.S., with 24/7 emergency response for fire, water, storm and mold losses. Founded in 2019 by Texas A&amp;M graduate Cody Allen Tatum, the company was named a 2025 Aggie 100 honoree for revenue growth.</p>
+        <div class="cols">
+          <div class="card"><div class="big">2019</div><p>Founded May 3, 2019. About 7 years in business at bid time.</p><p class="note">Source: Aggie 100 honoree profile</p></div>
+          <div class="card"><div class="big">49.79%</div><p>Three-year compound annual revenue growth, ranked #49 of the 2025 Aggie 100. Ranked from figures checked by an independent accounting firm.</p><p class="note">Source: Aggie 100 honoree profile and methodology</p></div>
+          <div class="card"><div class="big">24/7</div><p>Emergency response for fire, water, storm and mold. Licensed and insured, serving Houston and statewide.</p><p class="note">Source: unitedccr.com (self-reported)</p></div>
+          <div class="card"><div class="big">4 lines</div><p>Construct, Clean, Maintain, Restore: one contract can cover a facility from build-out through upkeep and loss recovery.</p><p class="note">Source: unitedccr.com</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Company facts for bid forms</h2>
+        <div class="tbl"><table>
+          <thead><tr><th>Field</th><th>Value</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Legal name</td><td>C.C.R. United LLC</td><td><span class="st s">Confirm on TX SOS</span></td></tr>
+            <tr><td>Trade names</td><td>United CCR; United Construct Clean Restore</td><td><span class="st v">Verified</span></td></tr>
+            <tr><td>Owner / President</td><td>Cody Allen Tatum, Texas A&amp;M Class of 2015 (founder, owner, president)</td><td><span class="st v">Verified</span></td></tr>
+            <tr><td>Headquarters</td><td>Cypress, TX (Harris County). Street address not published online.</td><td><span class="st s">Add street address</span></td></tr>
+            <tr><td>Phone / email</td><td class="mono">(832) 683-7433 · info@unitedccr.com</td><td><span class="st v">From company site</span></td></tr>
+            <tr><td>Founded</td><td>May 3, 2019</td><td><span class="st v">Verified</span></td></tr>
+            <tr><td>Service area</td><td>Houston and statewide Texas; markets across the southern U.S.</td><td><span class="st v">From company site</span></td></tr>
+            <tr><td>Client sectors</td><td>Corporate offices, medical facilities, luxury retail, large-scale developments</td><td><span class="st s">Self-reported</span></td></tr>
+            <tr><td>SAM.gov / UEI</td><td>No public entity record found</td><td><span class="st n">Register before federal bids</span></td></tr>
+            <tr><td>Texas HUB / CMBL</td><td>Not found in public sources</td><td><span class="st n">Check eligibility</span></td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section>
+        <h2>Service lines and codes</h2>
+        <div class="tbl"><table>
+          <thead><tr><th>Line</th><th>Work United CCR offers</th><th>NAICS</th><th>Typical public solicitations</th></tr></thead>
+          <tbody>
+            <tr><td><b>Construct</b></td><td>Ground-up construction, site development, buildouts and renovations, project management</td><td class="mono">236220, 236118, 238910</td><td>Renovation bids, tenant finish-out, job order contracts (JOC), CSP/CMAR packages</td></tr>
+            <tr><td><b>Clean</b></td><td>Specialized cleaning, janitorial, post-construction and post-disaster cleaning</td><td class="mono">561720, 561790</td><td>Custodial term contracts for cities, ISDs, state agencies</td></tr>
+            <tr><td><b>Maintain</b></td><td>Integrated facilities maintenance, commercial roofing, preventive maintenance, long-term care</td><td class="mono">238160, 238990, 561210</td><td>Roof repair/replacement, on-call maintenance, facility O&amp;M</td></tr>
+            <tr><td><b>Restore</b></td><td>Fire, water and storm damage; mold remediation; emergency roofing; roof, siding and structural storm repairs</td><td class="mono">562910, 236118, 238160</td><td>Pre-positioned disaster recovery contracts, remediation and restoration term contracts</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section>
+        <h2>Leadership experience</h2>
+        <div class="card">
+          <h4>Cody Allen Tatum, Founder &amp; President</h4>
+          <p>Texas A&amp;M University, Class of 2015. Before founding United CCR in 2019, a Cody Tatum with a Texas A&amp;M degree is listed as Project Manager / Superintendent at Cavalry Construction &amp; Restoration from 2014. Cavalry is a Houston-based insurance restoration contractor (since 1989) serving commercial, industrial, multifamily and religious facilities. If confirmed, that gives roughly 12 years of commercial restoration and construction management.</p>
+          <p class="note">Sources: Aggie 100 honoree profile; third-party professional profiles (Apollo, LinkedIn). Confirm the Cavalry role with Cody before citing it.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>RFP metrics scorecard</h2>
+        <p class="note">What evaluators score, and where United CCR stands on each from public sources. Items marked "Needed" are not published anywhere; collect them once and reuse them in every response.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Metric</th><th>Value</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Years in business</td><td>7 (since May 2019)</td><td><span class="st v">Verified</span></td></tr>
+            <tr><td>Revenue growth</td><td>49.79% 3-year CAGR, Aggie 100 #49 (2025)</td><td><span class="st v">Verified</span></td></tr>
+            <tr><td>Key personnel experience</td><td>Founder: ~12 years in construction and restoration</td><td><span class="st s">Confirm</span></td></tr>
+            <tr><td>Annual revenue, last 3 years</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
+            <tr><td>Employees and crew count by trade</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
+            <tr><td>Bonding capacity (single / aggregate)</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
+            <tr><td>Insurance limits (GL, auto, umbrella, WC)</td><td>"Licensed and insured"; limits not stated</td><td><span class="st n">Needed</span></td></tr>
+            <tr><td>Safety: EMR and OSHA TRIR, 3 years</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
+            <tr><td>Emergency response time to site</td><td>24/7 response claimed; no hour figure</td><td><span class="st n">Needed</span></td></tr>
+            <tr><td>Equipment inventory (dehumidifiers, air movers, extractors, generators)</td><td>Not public</td><td><span class="st n">Needed</span></td></tr>
+            <tr><td>Certifications (IICRC firm, TDLR mold remediation, HUB, roofing manufacturer)</td><td>None found publicly</td><td><span class="st n">Needed</span></td></tr>
+            <tr><td>Past projects: 3 to 5 references in the last 5 years</td><td>No public project records</td><td><span class="st n">Needed</span></td></tr>
+            <tr><td>Online reviews</td><td>Company site claims 4.8 from 127 reviews, but the two reviews embedded in the site code read like template placeholders</td><td><span class="st n">Do not cite yet</span></td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section>
+        <h2>Past performance log</h2>
+        <p class="note">No individual United CCR jobs are published online, so this log has to come from the company's records. Each row below is what public evaluators ask for. The repository's <span class="mono">portfolio/projects.csv</span> uses the same columns.</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Field</th><th>Why evaluators want it</th></tr></thead>
+          <tbody>
+            <tr><td>Project, owner, owner type (public / private, sector)</td><td>Shows similar clients; public owners carry more weight on public bids</td></tr>
+            <tr><td>City, county, state</td><td>Proves local presence and response capability</td></tr>
+            <tr><td>Service line, NAICS, loss type (fire / water / storm / mold)</td><td>Matches the solicitation scope</td></tr>
+            <tr><td>Contract value and final value; change-order %</td><td>Shows size capacity and cost control</td></tr>
+            <tr><td>Square footage, units, buildings</td><td>Shows scale</td></tr>
+            <tr><td>Start, finish, scheduled finish; time to mobilize</td><td>On-time delivery and emergency speed</td></tr>
+            <tr><td>Peak crew size; self-performed %</td><td>Workforce capacity</td></tr>
+            <tr><td>Safety incidents</td><td>Most RFPs score safety</td></tr>
+            <tr><td>Reference name, title, phone, email</td><td>Required on nearly every public bid</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section>
+        <h2>To widen eligibility</h2>
+        <ol class="steps">
+          <li><b>Register in SAM.gov</b> for a UEI. Free, takes a few weeks, and is required for any federal award, including FEMA-funded local work that checks exclusions.</li>
+          <li><b>Register on the Texas Comptroller's CMBL</b> (Centralized Master Bidders List) so state agencies send solicitations directly.</li>
+          <li><b>Check HUB eligibility.</b> Texas HUB certification requires at least 51% ownership by a minority, woman or service-disabled veteran. If it applies, it adds weight on state contracts and makes United CCR attractive as a subcontractor to prime bidders with HUB goals.</li>
+          <li><b>Get a TDLR mold remediation contractor license</b> before bidding Texas mold work; the scanner flags every Texas mold job until one is on file.</li>
+          <li><b>Obtain a bonding letter</b> from a surety with single and aggregate limits. Most public construction above $50,000 to $100,000 needs payment and performance bonds.</li>
+          <li><b>Pursue cooperative contracts</b> (TIPS, BuyBoard, Choice Partners). A co-op award lets ISDs, cities and counties buy from United CCR without running their own bid.</li>
+          <li><b>Pursue IICRC Certified Firm status</b>; restoration RFPs often require IICRC-certified technicians.</li>
+        </ol>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script id="rfp-data" type="application/json">/*__RFP_DATA__*/null</script>
+<script>
+(function () {
+  "use strict";
+  var raw = document.getElementById("rfp-data").textContent.trim();
+  var DATA = null;
+  try { DATA = JSON.parse(raw); } catch (e) { DATA = null; }
+  if (!DATA) DATA = { opportunities: [], counts: {}, sources_run: [], hq: { label: "Cypress, TX", lat: 29.9691, lon: -95.6972 } };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { q: "", tier: "", sort: "priority", showInel: false, open: null };
+  try { var s = localStorage.getItem("rfp-sort"); if (s) state.sort = s; } catch (e) {}
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function fmtDate(iso) {
+    if (!iso) return null;
+    var d = new Date(iso.length <= 10 ? iso + "T12:00:00" : iso + "Z");
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  }
+  function daysLeft(o) {
+    if (!o.due) return null;
+    var d = new Date(o.due + (o.due.length <= 10 ? "T23:59:00" : "Z"));
+    return (d - new Date()) / 86400000;
+  }
+  var STATUS = { eligible: "Eligible", check: "Eligible, check first", ineligible: "Not eligible" };
+
+  function setTab(which) {
+    var opps = which === "opps";
+    $("tab-opps").setAttribute("aria-selected", opps);
+    $("tab-portfolio").setAttribute("aria-selected", !opps);
+    $("view-opps").hidden = !opps;
+    $("view-portfolio").hidden = opps;
+  }
+  $("tab-opps").onclick = function () { setTab("opps"); };
+  $("tab-portfolio").onclick = function () { setTab("portfolio"); };
+  if (location.hash === "#portfolio") setTab("portfolio");
+
+  function renderMeta() {
+    var gen = DATA.generated_at ? new Date(DATA.generated_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "not yet run";
+    $("meta").innerHTML =
+      "<span>Last scan <b>" + esc(gen) + "</b></span>" +
+      "<span>Sources <b>" + esc((DATA.sources_run || []).join(", ") || "none") + "</b></span>" +
+      "<span>HQ <b>" + esc(DATA.hq.label) + "</b></span>" +
+      "<span>Service states <b>" + esc((DATA.service_states || []).join(" ")) + "</b></span>";
+    var opps = DATA.opportunities, c = { eligible: 0, check: 0, ineligible: 0 }, near = 0;
+    opps.forEach(function (o) { c[o.status] = (c[o.status] || 0) + 1; if (o.status !== "ineligible" && o.miles != null && o.miles <= 150) near++; });
+    $("summary").innerHTML =
+      '<div class="ok"><div class="n">' + c.eligible + '</div><div class="l">Eligible</div></div>' +
+      '<div class="warn"><div class="n">' + c.check + '</div><div class="l">Eligible, check first</div></div>' +
+      '<div><div class="n">' + near + '</div><div class="l">Biddable within 150 mi</div></div>' +
+      '<div class="bad"><div class="n">' + c.ineligible + '</div><div class="l">Not eligible</div></div>';
+    var tiers = [];
+    opps.forEach(function (o) { if (o.tier && tiers.indexOf(o.tier) < 0) tiers.push(o.tier); });
+    $("tier").innerHTML = '<option value="">All distances</option>' + tiers.map(function (t) { return '<option>' + esc(t) + '</option>'; }).join("");
+    $("tier").value = state.tier;
+    $("sort").value = state.sort;
+  }
+
+  function filtered() {
+    var q = state.q.toLowerCase();
+    var out = DATA.opportunities.filter(function (o) {
+      if (!state.showInel && o.status === "ineligible") return false;
+      if (state.tier && o.tier !== state.tier) return false;
+      if (q && [o.title, o.agency, o.city, o.state, o.number].join(" ").toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    var big = 1e9;
+    var key = {
+      priority: function (o) { return -o.priority; },
+      fit: function (o) { return -o.fit; },
+      miles: function (o) { return o.miles == null ? big : o.miles; },
+      due: function (o) { var d = daysLeft(o); return d == null ? big : d; }
+    }[state.sort];
+    return out.sort(function (a, b) {
+      var r = (a.status === "ineligible") - (b.status === "ineligible");
+      return r || key(a) - key(b) || b.priority - a.priority;
+    });
+  }
+
+  function brief(o) {
+    var lines = [
+      o.title, (o.agency || "Agency not stated") + (o.number ? " · " + o.number : ""),
+      "Location: " + ([o.city, o.state].filter(Boolean).join(", ") || "not stated") + (o.miles != null ? " (" + o.miles + " mi from Cypress HQ)" : ""),
+      "Due: " + (fmtDate(o.due) || "not stated") + " · Type: " + (o.type || "n/a") + (o.set_aside ? " · Set-aside: " + o.set_aside : ""),
+      "Priority " + o.priority + "/100 (fit " + o.fit + ", proximity " + o.proximity + ")",
+      "Status: " + STATUS[o.status]
+    ];
+    (o.fit_reasons || []).forEach(function (r) { lines.push("+ " + r); });
+    (o.ineligible_reasons || []).forEach(function (r) { lines.push("x " + r); });
+    (o.flags || []).forEach(function (r) { lines.push("! " + r); });
+    if (o.url) lines.push(o.url);
+    return lines.join("\n");
+  }
+
+  function renderList() {
+    var items = filtered();
+    if (!items.length) {
+      $("list").innerHTML = '<div class="empty">' + (DATA.opportunities.length
+        ? "No opportunities match these filters."
+        : "No opportunities yet. The nightly scan fills this list from SAM.gov, agency bid feeds and imported CSV exports. Use Load scan file to open the latest results.") + "</div>";
+      return;
+    }
+    $("list").innerHTML = items.map(function (o) {
+      var dl = daysLeft(o), soon = dl != null && dl < 7;
+      var due = o.due ? fmtDate(o.due) + (dl != null ? " · " + Math.max(0, Math.ceil(dl)) + " days" : "") : "No deadline posted";
+      var loc = [o.city, o.state].filter(Boolean).join(", ") || "Location not stated";
+      var isOpen = state.open === o.id;
+      var d = "";
+      if (isOpen) {
+        var li = function (arr) { return arr && arr.length ? "<ul>" + arr.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : ""; };
+        d = '<div class="detail">' +
+          (o.description ? "<div>" + esc(o.description) + "</div>" : "") +
+          (o.fit_reasons && o.fit_reasons.length ? "<div><b>Why it fits</b>" + li(o.fit_reasons) + "</div>" : "") +
+          (o.ineligible_reasons && o.ineligible_reasons.length ? "<div><b>Why not eligible</b>" + li(o.ineligible_reasons) + "</div>" : "") +
+          (o.flags && o.flags.length ? "<div><b>Check before bidding</b>" + li(o.flags) + "</div>" : "") +
+          '<div class="facts">' +
+            (o.number ? "<span>No. <b class='mono'>" + esc(o.number) + "</b></span>" : "") +
+            (o.naics ? "<span>NAICS <b class='mono'>" + esc(o.naics) + "</b></span>" : "") +
+            (o.set_aside ? "<span>Set-aside <b>" + esc(o.set_aside) + "</b></span>" : "") +
+            (o.posted ? "<span>Posted <b>" + esc(fmtDate(o.posted)) + "</b></span>" : "") +
+            "<span>Source <b>" + esc(o.source) + "</b></span>" +
+            (o.contact ? "<span>Contact <b>" + esc(o.contact) + "</b></span>" : "") +
+          "</div>" +
+          '<div class="row">' + (o.url ? '<a class="btn" href="' + esc(o.url) + '" target="_blank" rel="noopener">Open solicitation</a>' : "") +
+          '<button class="btn" data-copy="' + esc(o.id) + '">Copy bid/no-bid brief</button></div>' +
+        "</div>";
+      }
+      return '<article class="opp' + (isOpen ? " sel" : "") + '" id="o-' + esc(o.id) + '">' +
+        '<div class="score"><span class="n">' + o.priority + '</span><span class="l">priority</span></div>' +
+        '<div class="main"><div class="head"><button class="title" data-open="' + esc(o.id) + '" aria-expanded="' + isOpen + '">' + esc(o.title) + "</button></div>" +
+        '<div class="facts"><span><b>' + esc(o.agency || "Agency not stated") + "</b></span><span>" + esc(loc) + (o.miles != null ? " · <b class='mono'>" + o.miles + " mi</b>" : "") + "</span>" +
+        '<span class="' + (soon ? "due-soon" : "") + '">' + esc(due) + "</span></div>" +
+        '<div class="chips"><span class="chip ' + o.status + '">' + STATUS[o.status] + '</span><span class="chip tier">' + esc(o.tier) + "</span>" +
+        (o.type ? '<span class="chip">' + esc(o.type) + "</span>" : "") + '<span class="chip">Fit ' + o.fit + "</span></div>" +
+        d + "</div></article>";
+    }).join("");
+  }
+
+  function renderRadar() {
+    var svg = $("radar"), C = 160, R = 132, MAX = 700, hq = DATA.hq;
+    var r = function (mi) { return Math.sqrt(Math.min(mi, MAX) / MAX) * R; };
+    var col = { eligible: "var(--ok)", check: "var(--warn)", ineligible: "var(--bad)" };
+    var out = [];
+    [[60, "60"], [150, "150"], [450, "450"], [700, "700 mi"]].forEach(function (t) {
+      out.push('<circle cx="' + C + '" cy="' + C + '" r="' + r(t[0]).toFixed(1) + '" fill="none" stroke="var(--line)" stroke-width="1"/>');
+      out.push('<text x="' + (C + 3) + '" y="' + (C - r(t[0]) + 11).toFixed(1) + '" font-size="9" fill="var(--muted)" font-family="IBM Plex Mono, monospace">' + t[1] + "</text>");
+    });
+    out.push('<line x1="' + C + '" y1="' + (C - R - 6) + '" x2="' + C + '" y2="' + (C + R + 6) + '" stroke="var(--line)"/>');
+    out.push('<line x1="' + (C - R - 6) + '" y1="' + C + '" x2="' + (C + R + 6) + '" y2="' + C + '" stroke="var(--line)"/>');
+    out.push('<text x="' + C + '" y="12" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono, monospace">N</text>');
+    var unplaced = 0;
+    var visible = filtered();
+    visible.slice().reverse().forEach(function (o) {
+      var x, y;
+      if (o.point && o.miles != null) {
+        var la1 = hq.lat * Math.PI / 180, la2 = o.point[0] * Math.PI / 180, dl = (o.point[1] - hq.lon) * Math.PI / 180;
+        var b = Math.atan2(Math.sin(dl) * Math.cos(la2), Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dl));
+        var rr = r(o.miles);
+        x = C + rr * Math.sin(b); y = C - rr * Math.cos(b);
+      } else {
+        var a = (225 + unplaced * 14) * Math.PI / 180; unplaced++;
+        x = C + (R + 16) * Math.sin(a); y = C - (R + 16) * Math.cos(a);
+      }
+      var sel = state.open === o.id;
+      out.push('<circle class="pt" data-open="' + esc(o.id) + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (sel ? 7 : 5) + '" fill="' + col[o.status] + '" stroke="' + (sel ? "var(--ink)" : "var(--surface)") + '" stroke-width="' + (sel ? 2 : 1.5) + '" style="cursor:pointer"><title>' + esc(o.title + (o.miles != null ? " · " + o.miles + " mi" : " · location not stated")) + "</title></circle>");
+    });
+    out.push('<rect x="' + (C - 5) + '" y="' + (C - 5) + '" width="10" height="10" fill="var(--ink)" transform="rotate(45 ' + C + " " + C + ')"/>');
+    out.push('<text x="' + (C + 9) + '" y="' + (C + 16) + '" font-size="10" font-weight="600" fill="var(--ink)" font-family="IBM Plex Sans, sans-serif">Cypress HQ</text>');
+    svg.innerHTML = out.join("");
+  }
+
+  function render() { renderList(); renderRadar(); }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-open]");
+    if (t) {
+      var id = t.getAttribute("data-open");
+      state.open = state.open === id ? null : id;
+      render();
+      if (t.tagName.toLowerCase() === "circle") { var el = $("o-" + id); if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+      return;
+    }
+    var c = e.target.closest("[data-copy]");
+    if (c) {
+      var o = DATA.opportunities.filter(function (x) { return x.id === c.getAttribute("data-copy"); })[0];
+      var text = brief(o);
+      var done = function () { c.textContent = "Copied"; setTimeout(function () { c.textContent = "Copy bid/no-bid brief"; }, 1600); };
+      try {
+        navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, c); });
+      } catch (err) { fallbackCopy(text, c); }
+    }
+  });
+  function fallbackCopy(text, btn) {
+    var ta = document.createElement("textarea"); ta.value = text; ta.rows = 8; ta.style.width = "100%";
+    btn.parentNode.parentNode.appendChild(ta); ta.select(); btn.textContent = "Select and copy the text below";
+  }
+
+  $("q").oninput = function (e) { state.q = e.target.value; render(); };
+  $("tier").onchange = function (e) { state.tier = e.target.value; render(); };
+  $("sort").onchange = function (e) { state.sort = e.target.value; try { localStorage.setItem("rfp-sort", state.sort); } catch (x) {} render(); };
+  $("showInel").onchange = function (e) { state.showInel = e.target.checked; render(); };
+  $("file").onchange = function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      try {
+        var d = JSON.parse(rd.result);
+        if (!d || !Array.isArray(d.opportunities)) throw new Error("no opportunities list");
+        d.hq = d.hq || DATA.hq; DATA = d; state.open = null;
+        $("fileNote").textContent = "Showing " + f.name + ".";
+        renderMeta(); render();
+      } catch (err) {
+        $("fileNote").textContent = "That file is not a scan result. Choose data/opportunities.json from the scanner repository.";
+      }
+    };
+    rd.readAsText(f);
+  };
+
+  renderMeta(); render();
+})();
+</script>

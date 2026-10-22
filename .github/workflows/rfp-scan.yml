@@ -1,0 +1,58 @@
+name: United CCR RFP scan
+
+on:
+  schedule:
+    - cron: "17 11 * * *"   # 6:17 a.m. Central (CDT) every day
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rfp-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: united-ccr
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restore Census place and ZIP coordinates
+        id: geo-cache
+        uses: actions/cache@v4
+        with:
+          path: united-ccr/data/geo
+          key: census-gazetteer-2023
+
+      - name: Download Census gazetteer (ZIP and city coordinates)
+        if: steps.geo-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          mkdir -p data/geo && cd data/geo
+          base=https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2023_Gazetteer
+          curl -fsSL "$base/2023_Gaz_zcta_national.zip" -o zcta.zip && unzip -p zcta.zip > gaz_zcta.txt && rm zcta.zip
+          curl -fsSL "$base/2023_Gaz_place_national.zip" -o place.zip && unzip -p place.zip > gaz_place.txt && rm place.zip
+
+      - name: Test
+        run: python -m unittest discover -s rfp_scanner/tests -t .
+
+      - name: Scan
+        env:
+          SAM_API_KEY: ${{ secrets.SAM_API_KEY }}
+        run: python -m rfp_scanner.scan
+
+      - name: Commit results
+        run: |
+          git config user.name "rfp-scanner"
+          git config user.email "rfp-scanner@users.noreply.github.com"
+          git add data/opportunities.json docs/index.html
+          git diff --cached --quiet || git commit -m "RFP scan $(date -u +%Y-%m-%d)"
+          git push

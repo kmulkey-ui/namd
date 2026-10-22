@@ -1,0 +1,217 @@
+{
+  "company": {
+    "name": "United CCR (United Construct Clean Restore)",
+    "hq": {
+      "label": "Cypress, TX",
+      "lat": 29.9691,
+      "lon": -95.6972
+    },
+    "certifications_held": [
+      "SB"
+    ],
+    "_certifications_note": "Set-aside codes the company can bid. SB = small business (SAM codes SBA/SBP). Add HZC/HZS (HUBZone), 8A/8AN, WOSB/WOSBSS, EDWOSB/EDWOSBSS, SDVOSBC/SDVOSBS, VSA/VSS only once certified. 'TX-HUB' unlocks Texas HUB goals.",
+    "licenses_held": [],
+    "_licenses_note": "Add 'TDLR-MOLD-REMEDIATION' once United CCR holds a Texas mold remediation contractor license; until then Texas mold jobs are flagged.",
+    "legal_name": "C.C.R. United LLC (d/b/a United CCR, United Construct Clean Restore)",
+    "sam_registered": false,
+    "_sam_note": "No SAM.gov entity record was found in public sources (Oct 2026). Federal awards require an active SAM registration/UEI; set true once registered.",
+    "client_sectors": [
+      "corporate office",
+      "medical",
+      "healthcare",
+      "clinic",
+      "hospital",
+      "retail",
+      "multifamily",
+      "apartment",
+      "housing authority",
+      "church",
+      "school",
+      "university",
+      "municipal"
+    ]
+  },
+  "service_area": {
+    "states": [
+      "TX",
+      "LA",
+      "OK",
+      "AR",
+      "NM",
+      "MS",
+      "AL",
+      "FL",
+      "GA",
+      "TN",
+      "SC"
+    ],
+    "_states_note": "United CCR markets 'across the southern U.S.' with Houston and statewide Texas as its core. Opportunities outside these states are marked ineligible, never silently dropped.",
+    "tiers": [
+      {
+        "name": "Home turf (≤60 mi)",
+        "max_miles": 60
+      },
+      {
+        "name": "Houston region (≤150 mi)",
+        "max_miles": 150
+      },
+      {
+        "name": "Statewide reach (≤450 mi)",
+        "max_miles": 450
+      },
+      {
+        "name": "Long haul (450+ mi)",
+        "max_miles": 100000
+      }
+    ],
+    "proximity_zero_at_miles": 700
+  },
+  "naics": {
+    "primary": [
+      "236220",
+      "238160",
+      "561720",
+      "562910",
+      "236118",
+      "238910"
+    ],
+    "secondary": [
+      "238990",
+      "561790",
+      "236210",
+      "238390",
+      "238310",
+      "238320",
+      "238220",
+      "561210",
+      "562119",
+      "562998"
+    ]
+  },
+  "psc_prefixes": [
+    "Z1",
+    "Z2",
+    "S201",
+    "S214",
+    "F108",
+    "Y1",
+    "Y2",
+    "J0"
+  ],
+  "keywords": {
+    "strong": [
+      "disaster recovery",
+      "disaster restoration",
+      "emergency restoration",
+      "water damage",
+      "fire damage",
+      "smoke damage",
+      "storm damage",
+      "hurricane",
+      "flood",
+      "mold",
+      "mold remediation",
+      "mold abatement",
+      "remediation and restoration",
+      "restoration services",
+      "roof replacement",
+      "roof repair",
+      "reroof",
+      "roofing",
+      "janitorial",
+      "custodial",
+      "post-construction clean",
+      "facilities maintenance",
+      "facility maintenance",
+      "building maintenance",
+      "renovation",
+      "build-out",
+      "buildout",
+      "tenant finish",
+      "interior finish",
+      "general contractor",
+      "job order contract",
+      "jobs order contract",
+      "joc",
+      "site development",
+      "site work",
+      "ground-up"
+    ],
+    "moderate": [
+      "repair",
+      "construction",
+      "drywall",
+      "painting",
+      "flooring",
+      "siding",
+      "cleaning",
+      "dehumidification",
+      "water extraction",
+      "debris",
+      "demolition",
+      "abatement",
+      "maintenance services",
+      "minor construction",
+      "on-call",
+      "indefinite delivery",
+      "idiq",
+      "term contract",
+      "carpentry",
+      "concrete",
+      "storm",
+      "remediation"
+    ],
+    "negative": [
+      "software",
+      "information technology",
+      "laboratory equipment",
+      "medical supplies",
+      "pharmaceutical",
+      "vehicle purchase",
+      "ammunition",
+      "aircraft",
+      "telecommunications",
+      "audit services",
+      "legal services",
+      "staffing services",
+      "food service",
+      "uniforms",
+      "bus purchase",
+      "fuel supply",
+      "insurance brokerage"
+    ]
+  },
+  "scoring": {
+    "weights": {
+      "fit": 0.45,
+      "proximity": 0.4,
+      "time": 0.15
+    },
+    "min_fit_to_list": 25
+  },
+  "sources": {
+    "sam_gov": {
+      "enabled": true,
+      "api_key_env": "SAM_API_KEY",
+      "lookback_days": 5,
+      "first_run_lookback_days": 30,
+      "notice_types": "o,k,p,r",
+      "_notice_types_note": "o=solicitation, k=combined synopsis/solicitation, p=presolicitation, r=sources sought",
+      "max_requests_per_run": 9,
+      "_max_requests_note": "A personal SAM.gov key without an entity role is limited to 10 requests/day. One request per primary NAICS code plus margin."
+    },
+    "rss_feeds": [],
+    "_rss_feeds_example": [
+      {
+        "name": "City of Example, TX — Bid Postings",
+        "url": "https://www.example-city.gov/RSSFeed.aspx?ModID=76&CID=All-bids.xml",
+        "agency": "City of Example",
+        "city": "Example",
+        "state": "TX",
+        "lat": 29.99,
+        "lon": -95.65
+      }
+    ],
+    "csv_imports_dir": "imports"
+  }
+}
